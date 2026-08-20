@@ -80,6 +80,7 @@ export function LoginDialog() {
   return (
     <Dialog
       open={loginOpen}
+      modal={false}
       onOpenChange={(open) => {
         if (!open) {
           closeLogin();

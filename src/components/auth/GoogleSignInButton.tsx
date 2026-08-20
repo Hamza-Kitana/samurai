@@ -42,6 +42,8 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
             }
           },
           cancel_on_tap_outside: true,
+          // Prefer FedCM when available — avoids browser popup blockers
+          use_fedcm_for_button: true,
         });
 
         buttonRef.current.innerHTML = "";
@@ -50,7 +52,7 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
           size: "large",
           text: "continue_with",
           shape: "rectangular",
-          width: 480,
+          width: Math.max(280, Math.floor(buttonRef.current.clientWidth || 320)),
           locale: lang === "ar" ? "ar" : "en",
         });
       })
@@ -71,8 +73,10 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
     );
   }
 
+  // Keep the real Google iframe fully interactive on top.
+  // opacity-0 often breaks popup/user-gesture in Edge/Chrome.
   return (
-    <div className="relative h-14 w-full overflow-hidden border border-primary/30 bg-gradient-to-b from-[#1c1812] to-[#14110d] shadow-[inset_0_1px_0_rgba(232,197,106,0.12)] transition hover:border-primary/55 hover:from-[#221c14] hover:to-[#18140f]">
+    <div className="relative h-14 w-full overflow-hidden border border-primary/30 bg-gradient-to-b from-[#1c1812] to-[#14110d] shadow-[inset_0_1px_0_rgba(232,197,106,0.12)]">
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center gap-3">
         <GoogleMark />
         <span className="text-[15px] font-medium tracking-wide text-white/95">
@@ -81,7 +85,7 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
       </div>
       <div
         ref={buttonRef}
-        className="absolute inset-0 z-10 opacity-0 [&_iframe]:h-full [&_iframe]:min-h-full [&_iframe]:w-full"
+        className="absolute inset-0 z-10 opacity-[0.02] [&_div]:!h-full [&_div]:!w-full [&_iframe]:!h-full [&_iframe]:!min-h-full [&_iframe]:!w-full"
       />
     </div>
   );
