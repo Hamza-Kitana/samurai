@@ -34,6 +34,12 @@ export type Order = {
   status: string;
   created_at: string;
   order_items: OrderItem[];
+  customer?: {
+    id: string;
+    email: string;
+    display_name: string;
+    avatar?: string;
+  } | null;
 };
 
 export type ProductFile = {

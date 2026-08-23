@@ -8,17 +8,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  ensureSeed,
-  getCurrentUser,
-  signIn as localSignIn,
-  signInWithGoogle as localSignInWithGoogle,
-  signOut as localSignOut,
-  signUp as localSignUp,
-  type LocalUser,
-  type Product as DataProduct,
-} from "@/lib/data";
 import type { GoogleProfile } from "@/lib/google-auth";
+import {
+  apiGetMe,
+  apiGoogleLogin,
+  apiLogin,
+  apiLogout,
+  apiRegister,
+} from "@/lib/api";
+import type { LocalUser, Product as DataProduct } from "@/lib/data";
 
 export type Product = DataProduct;
 
@@ -154,23 +152,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginNextRef = useRef<string | null>(null);
 
   const refresh = useCallback(() => {
-    try {
-      ensureSeed();
-      const current = getCurrentUser();
-      if (current) {
-        setUser(toAuthUser(current));
-        setIsAdmin(current.role === "admin");
-      } else {
+    void apiGetMe()
+      .then((current) => {
+        if (current) {
+          setUser(toAuthUser(current));
+          setIsAdmin(current.role === "admin");
+        } else {
+          setUser(null);
+          setIsAdmin(false);
+        }
+      })
+      .catch((err) => {
+        console.warn("auth refresh failed", err);
         setUser(null);
         setIsAdmin(false);
-      }
-    } catch (err) {
-      console.warn("auth refresh failed", err);
-      setUser(null);
-      setIsAdmin(false);
-    } finally {
-      setLoading(false);
-    }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -199,27 +198,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return next;
       },
       login: async (email, password) => {
-        const u = localSignIn(email, password);
+        const u = await apiLogin(email, password);
         setUser(toAuthUser(u));
         setIsAdmin(u.role === "admin");
         setLoginOpen(false);
         setLoginStaff(false);
       },
       register: async (email, password, name) => {
-        const u = localSignUp(email, password, name);
+        const u = await apiRegister(email, password, name);
         setUser(toAuthUser(u));
         setIsAdmin(u.role === "admin");
         setLoginOpen(false);
       },
       loginWithGoogle: async (profile) => {
-        const u = localSignInWithGoogle(profile);
+        const u = await apiGoogleLogin(profile);
         setUser(toAuthUser(u));
         setIsAdmin(u.role === "admin");
         setLoginOpen(false);
         setLoginStaff(false);
       },
       logout: () => {
-        localSignOut();
+        void apiLogout();
         setUser(null);
         setIsAdmin(false);
       },
