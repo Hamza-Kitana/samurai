@@ -106,7 +106,7 @@ export function LoginDialog() {
             <div className="absolute inset-x-0 bottom-0 p-7">
               <p className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.28em] text-primary uppercase">
                 <Sparkles className="h-3 w-3" />
-                SAMURAI REALM
+                KATARO
               </p>
               <p className="mt-3 font-display text-2xl font-semibold tracking-wide text-white">
                 {t("tagline")}

@@ -10,8 +10,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --font-display: "Cinzel", "Cairo", ui-serif, Georgia, serif;
-  --font-sans: "Outfit", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Orbitron", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Cairo", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -46,45 +46,47 @@
 
 :root {
   --radius: 0.125rem;
-  --background: oklch(0.12 0.006 85);
-  --foreground: oklch(0.96 0.01 90);
-  --card: oklch(0.155 0.008 85);
-  --card-foreground: oklch(0.96 0.01 90);
-  --popover: oklch(0.155 0.008 85);
-  --popover-foreground: oklch(0.96 0.01 90);
-  --primary: oklch(0.8 0.11 90);
-  --primary-foreground: oklch(0.14 0.01 85);
-  --secondary: oklch(0.2 0.01 85);
-  --secondary-foreground: oklch(0.95 0.01 90);
-  --muted: oklch(0.2 0.01 85);
-  --muted-foreground: oklch(0.7 0.02 90);
-  --accent: oklch(0.22 0.025 88);
-  --accent-foreground: oklch(0.92 0.05 90);
-  --destructive: oklch(0.58 0.2 25);
-  --destructive-foreground: oklch(0.97 0.01 90);
-  --border: oklch(0.32 0.02 88 / 45%);
-  --input: oklch(0.32 0.02 88 / 50%);
-  --ring: oklch(0.8 0.11 90);
-  --gold: oklch(0.8 0.11 90);
-  --gold-soft: oklch(0.9 0.07 95);
-  --ink: oklch(0.09 0.005 85);
-  --sidebar: oklch(0.13 0.006 85);
-  --sidebar-foreground: oklch(0.93 0.01 90);
-  --sidebar-primary: oklch(0.8 0.11 90);
-  --sidebar-primary-foreground: oklch(0.14 0.01 85);
-  --sidebar-accent: oklch(0.2 0.01 85);
-  --sidebar-accent-foreground: oklch(0.93 0.01 90);
-  --sidebar-border: oklch(0.32 0.02 88 / 45%);
-  --sidebar-ring: oklch(0.8 0.11 90);
+  /* KATARO — void black / crimson / steel */
+  --background: oklch(0.09 0.01 25);
+  --foreground: oklch(0.96 0.005 80);
+  --card: oklch(0.13 0.012 25);
+  --card-foreground: oklch(0.96 0.005 80);
+  --popover: oklch(0.12 0.012 25);
+  --popover-foreground: oklch(0.96 0.005 80);
+  --primary: oklch(0.58 0.22 25);
+  --primary-foreground: oklch(0.98 0.01 80);
+  --secondary: oklch(0.18 0.015 25);
+  --secondary-foreground: oklch(0.94 0.01 80);
+  --muted: oklch(0.18 0.012 25);
+  --muted-foreground: oklch(0.68 0.02 70);
+  --accent: oklch(0.2 0.03 25);
+  --accent-foreground: oklch(0.94 0.02 80);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 80);
+  --border: oklch(0.35 0.04 25 / 40%);
+  --input: oklch(0.35 0.04 25 / 45%);
+  --ring: oklch(0.58 0.22 25);
+  --gold: oklch(0.58 0.22 25);
+  --gold-soft: oklch(0.78 0.14 25);
+  --ink: oklch(0.06 0.008 25);
+  --sidebar: oklch(0.1 0.01 25);
+  --sidebar-foreground: oklch(0.93 0.01 80);
+  --sidebar-primary: oklch(0.58 0.22 25);
+  --sidebar-primary-foreground: oklch(0.98 0.01 80);
+  --sidebar-accent: oklch(0.18 0.02 25);
+  --sidebar-accent-foreground: oklch(0.93 0.01 80);
+  --sidebar-border: oklch(0.35 0.04 25 / 40%);
+  --sidebar-ring: oklch(0.58 0.22 25);
 
-  --gradient-gold: linear-gradient(120deg, #f3e2a8 0%, #e8c56a 42%, #b8892d 100%);
+  --gradient-gold: linear-gradient(120deg, #ff6b6b 0%, #e11d2e 42%, #8b000f 100%);
+  --gradient-steel: linear-gradient(120deg, #f5f5f5 0%, #c8c8c8 45%, #8a8a8a 100%);
   --gradient-veil: radial-gradient(
     ellipse at 50% 0%,
-    color-mix(in oklab, var(--gold) 16%, transparent),
-    transparent 60%
+    color-mix(in oklab, var(--gold) 18%, transparent),
+    transparent 58%
   );
-  --shadow-gold: 0 24px 60px -28px color-mix(in oklab, var(--gold) 40%, transparent);
-  --shadow-panel: 0 24px 70px -30px oklch(0 0 0 / 90%);
+  --shadow-gold: 0 24px 60px -28px color-mix(in oklab, var(--gold) 55%, transparent);
+  --shadow-panel: 0 24px 70px -30px oklch(0 0 0 / 92%);
 }
 
 @layer base {
@@ -126,6 +128,13 @@
 
 @utility text-gold-gradient {
   background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-steel-gradient {
+  background: var(--gradient-steel);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

@@ -28,7 +28,7 @@ export function ProductImage({ title, imageUrl, className }: ProductImageProps) 
       )}
     >
       <span className="font-display text-sm tracking-widest text-primary/40 uppercase">
-        SAMURAI
+        KATARO
       </span>
     </div>
   );

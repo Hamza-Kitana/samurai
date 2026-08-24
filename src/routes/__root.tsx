@@ -44,13 +44,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 
   useEffect(() => {
-    document.title = "Samurai Realm — FiveM Store";
+    document.title = "KATARO — FiveM Store";
   }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <img src="/logo.svg" alt="" className="mx-auto mb-6 h-12 w-12 object-contain" />
+        <img src="/logo.png" alt="" className="mx-auto mb-6 h-16 w-auto object-contain" />
         <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
           تعذّر تحميل الصفحة
         </h1>
@@ -84,12 +84,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Samurai Realm — FiveM Store" },
+      { title: "KATARO — FiveM Store" },
       {
         name: "description",
-        content: "Premium FiveM maps, scripts, clothing and vehicles. Instant download after purchase.",
+        content: "Premium FiveM maps, scripts, clothing and vehicles by KATARO.",
       },
-      { property: "og:title", content: "Samurai Realm — FiveM Store" },
+      { property: "og:title", content: "KATARO — FiveM Store" },
       {
         property: "og:description",
         content: "Premium FiveM maps, scripts, clothing and vehicles.",
@@ -99,13 +99,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "32x32" },
-      { rel: "shortcut icon", href: "/favicon.ico" },
-      { rel: "apple-touch-icon", href: "/icon-180.png", sizes: "180x180" },
+      { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;600;700&display=swap",
       },
     ],
   }),

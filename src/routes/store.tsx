@@ -56,7 +56,7 @@ function StorePage() {
             )}
           >
             <p className="mb-3 font-display text-[11px] tracking-[0.45em] text-primary uppercase">
-              SAMURAI REALM
+              KATARO
             </p>
             <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-wide sm:text-5xl lg:text-6xl">
               {t("store_title")}

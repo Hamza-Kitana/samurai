@@ -82,7 +82,7 @@ import {
   YAxis,
 } from "recharts";
 
-const CHART_COLORS = ["#e8c56a", "#c9962e", "#8f6a1a", "#f3e2a8", "#b8892d", "#d4af37", "#a67c2a"];
+const CHART_COLORS = ["#e11d2e", "#ff4d5a", "#8b000f", "#c0c0c0", "#ff6b6b", "#a31621", "#6b7280"];
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -261,15 +261,15 @@ function AdminPage() {
   const pieConfig = useMemo<ChartConfig>(() => {
     const config: ChartConfig = {};
     for (const row of categorySales) {
-      config[row.slug] = { label: row.name, color: row.fill ?? "#e8c56a" };
+      config[row.slug] = { label: row.name, color: row.fill ?? "#e11d2e" };
     }
     return config;
   }, [categorySales]);
 
   const trendConfig = useMemo<ChartConfig>(
     () => ({
-      revenue: { label: t("revenue"), color: "#e8c56a" },
-      orders: { label: t("orders_count"), color: "#c9962e" },
+      revenue: { label: t("revenue"), color: "#e11d2e" },
+      orders: { label: t("orders_count"), color: "#ff4d5a" },
     }),
     [t],
   );
@@ -642,8 +642,8 @@ function AdminPage() {
                       <AreaChart data={revenueTrend} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
                         <defs>
                           <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#e8c56a" stopOpacity={0.45} />
-                            <stop offset="100%" stopColor="#e8c56a" stopOpacity={0.02} />
+                            <stop offset="0%" stopColor="#e11d2e" stopOpacity={0.45} />
+                            <stop offset="100%" stopColor="#e11d2e" stopOpacity={0.02} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
@@ -673,7 +673,7 @@ function AdminPage() {
                         <Area
                           type="monotone"
                           dataKey="revenue"
-                          stroke="#e8c56a"
+                          stroke="#e11d2e"
                           strokeWidth={2.2}
                           fill="url(#revenueFill)"
                         />

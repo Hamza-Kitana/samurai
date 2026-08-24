@@ -54,7 +54,7 @@ function ContactPage() {
             )}
           >
             <p className="mb-3 font-display text-[11px] tracking-[0.45em] text-primary uppercase">
-              SAMURAI REALM
+              KATARO
             </p>
             <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-wide sm:text-5xl lg:text-6xl">
               {t("contact_title")}
@@ -76,7 +76,7 @@ function ContactPage() {
                   {t("email")}
                 </p>
                 <p className="mt-2 font-display text-lg tracking-wide text-gold-gradient">
-                  support@samurai.realm
+                  support@kataro.store
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {t("contact_email_note")}
@@ -90,7 +90,7 @@ function ContactPage() {
                 <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
                   Discord
                 </p>
-                <p className="mt-2 font-display text-lg tracking-wide">discord.gg/samurai</p>
+                <p className="mt-2 font-display text-lg tracking-wide">discord.gg/kataro</p>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {t("contact_discord_note")}
                 </p>

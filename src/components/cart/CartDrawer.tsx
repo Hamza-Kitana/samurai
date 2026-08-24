@@ -32,7 +32,7 @@ export function CartDrawer() {
       >
         <SheetHeader className="relative border-b border-white/8 px-6 py-6 text-start">
           <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-l from-transparent via-primary to-transparent" />
-          <p className="text-[10px] tracking-[0.28em] text-primary uppercase">Samurai</p>
+          <p className="text-[10px] tracking-[0.28em] text-primary uppercase">KATARO</p>
           <SheetTitle className="mt-1 font-display text-2xl font-semibold tracking-wide">
             {t("cart_title")}
           </SheetTitle>

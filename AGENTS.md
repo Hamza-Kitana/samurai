@@ -1,4 +1,4 @@
-# Samurai Realm
+# KATARO
 
 Project guidelines for AI agents working on this codebase.
 
@@ -8,6 +8,12 @@ Project guidelines for AI agents working on this codebase.
 - Frontend-only: localStorage data layer in `src/lib/data.ts` (no backend / no Supabase)
 - Tailwind CSS 4 + shadcn/ui components in `src/components/ui/`
 - State: React Context (`src/lib/store.tsx`, `src/lib/i18n.tsx`)
+
+## Brand
+
+- Name: **KATARO**
+- Palette: void black / crimson red / steel silver
+- Logo: `public/logo.png`
 
 ## Conventions
 

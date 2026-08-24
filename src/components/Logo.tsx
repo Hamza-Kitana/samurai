@@ -9,26 +9,31 @@ type LogoProps = {
   linked?: boolean;
 };
 
-const sizes = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-16 w-16", xl: "h-20 w-20" };
+const sizes = {
+  sm: "h-10 w-14",
+  md: "h-12 w-16",
+  lg: "h-16 w-24",
+  xl: "h-20 w-28",
+};
 
 export function Logo({ className, showText = true, size = "md", linked = true }: LogoProps) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const inner = (
     <>
       <span className={cn("relative flex shrink-0 items-center justify-center", sizes[size])}>
         <img
-          src="/logo.svg"
+          src="/logo.png"
           alt={t("brand")}
-          className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-contain drop-shadow-[0_0_18px_rgba(225,29,46,0.35)] transition-transform duration-500 group-hover:scale-105"
         />
       </span>
       {showText && (
         <div className="leading-none">
-          <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-gold-gradient uppercase sm:text-base">
-            {lang === "ar" ? t("brand") : "SAMURAI"}
+          <span className="font-display text-[15px] font-semibold tracking-[0.22em] text-steel-gradient uppercase sm:text-base">
+            {t("brand")}
           </span>
-          <span className="mt-1 block text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+          <span className="mt-1 block text-[10px] tracking-[0.28em] text-primary/80 uppercase">
             FiveM
           </span>
         </div>

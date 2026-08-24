@@ -119,7 +119,7 @@ function ProfilePage() {
               <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
                   <div className="relative shrink-0">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary via-[#e8c56a] to-[#8b6914] opacity-90 blur-[2px]" />
+                    <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary via-[#ff4d5a] to-[#7a0010] opacity-90 blur-[2px]" />
                     <div className="relative h-24 w-24 overflow-hidden rounded-full bg-[#14110c] p-[3px] shadow-[0_20px_60px_-20px_rgba(232,197,106,0.65)] sm:h-28 sm:w-28">
                       <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#1a1610]">
                         {user.avatar ? (
@@ -458,7 +458,7 @@ function ProfilePage() {
               <div className="flex flex-col justify-between border border-white/10 bg-gradient-to-br from-primary/15 via-[#14120e] to-[#0f0d0b] p-6 sm:p-8">
                 <div>
                   <p className="text-[11px] tracking-[0.28em] text-primary uppercase">
-                    Samurai Realm
+                    KATARO
                   </p>
                   <h3 className="mt-3 font-display text-2xl font-semibold tracking-wide">
                     {t("profile_member")}
