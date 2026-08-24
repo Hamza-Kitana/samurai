@@ -27,9 +27,7 @@ export function ProductImage({ title, imageUrl, className }: ProductImageProps) 
         className,
       )}
     >
-      <span className="font-display text-sm tracking-widest text-primary/40 uppercase">
-        KATARO
-      </span>
+      <span className="font-display text-sm tracking-widest text-primary/40 uppercase">KATARO</span>
     </div>
   );
 }

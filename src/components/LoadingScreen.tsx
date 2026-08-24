@@ -9,12 +9,7 @@ type LoadingScreenProps = {
   label?: string;
 };
 
-export function LoadingScreen({
-  compact = false,
-  className,
-  progress,
-  label,
-}: LoadingScreenProps) {
+export function LoadingScreen({ compact = false, className, progress, label }: LoadingScreenProps) {
   const { t } = useLang();
   const [autoProgress, setAutoProgress] = useState(12);
 
@@ -79,9 +74,7 @@ export function LoadingScreen({
         </div>
 
         <div className="mt-8 animate-hero-in [animation-delay:120ms]">
-          <p className="font-display text-[11px] tracking-[0.5em] text-primary uppercase">
-            FiveM
-          </p>
+          <p className="font-display text-[11px] tracking-[0.5em] text-primary uppercase">FiveM</p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-[0.28em] text-steel-gradient uppercase sm:text-4xl">
             {brand}
           </h1>

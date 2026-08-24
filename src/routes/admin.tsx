@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -71,16 +71,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
 
 const CHART_COLORS = ["#e11d2e", "#ff4d5a", "#8b000f", "#c0c0c0", "#ff6b6b", "#a31621", "#6b7280"];
 
@@ -157,11 +148,14 @@ function AdminPage() {
     enabled: isAdmin,
   });
 
-  const categoryName = (slug: string) => {
-    const cat = (categories ?? []).find((c) => c.slug === slug);
-    if (!cat) return slug;
-    return lang === "ar" ? cat.name_ar : cat.name_en;
-  };
+  const categoryName = useCallback(
+    (slug: string) => {
+      const cat = (categories ?? []).find((c) => c.slug === slug);
+      if (!cat) return slug;
+      return lang === "ar" ? cat.name_ar : cat.name_en;
+    },
+    [categories, lang],
+  );
 
   const groupedProducts = useMemo(() => {
     const list = products ?? [];
@@ -191,7 +185,7 @@ function AdminPage() {
       groups.push({ slug: "_other", label: "—", items: orphan });
     }
     return groups;
-  }, [products, categories, filterCategory, productSearch, lang]);
+  }, [products, categories, filterCategory, productSearch, categoryName]);
 
   const filteredProductCount = useMemo(
     () => groupedProducts.reduce((n, g) => n + g.items.length, 0),
@@ -223,7 +217,7 @@ function AdminPage() {
         ...row,
         fill: CHART_COLORS[index % CHART_COLORS.length],
       }));
-  }, [orders, products, categories, lang]);
+  }, [orders, products, categoryName]);
 
   const revenueTrend = useMemo(() => {
     const days = 14;
@@ -365,8 +359,7 @@ function AdminPage() {
       invalidateProducts(queryClient);
       toast.success(t("delete"));
     },
-    onError: (err) =>
-      toast.error(err instanceof Error ? err.message : t("category_in_use")),
+    onError: (err) => toast.error(err instanceof Error ? err.message : t("category_in_use")),
   });
 
   const approveOrderMut = useMutation({
@@ -469,7 +462,9 @@ function AdminPage() {
       <div className="flex min-h-[calc(100vh-4rem)] bg-[#0a0908]">
         <aside className="hidden w-64 shrink-0 border-e border-white/8 bg-[#0e0c0a] md:flex md:flex-col">
           <div className="border-b border-white/8 px-5 py-6">
-            <p className="text-[10px] tracking-[0.28em] text-primary uppercase">{t("admin_panel")}</p>
+            <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
+              {t("admin_panel")}
+            </p>
             <h2 className="mt-2 font-display text-xl font-bold tracking-wide text-gold-gradient">
               {t("nav_admin")}
             </h2>
@@ -586,7 +581,10 @@ function AdminPage() {
                       </p>
                     ) : (
                       <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_9rem] sm:items-center">
-                        <ChartContainer config={pieConfig} className="mx-auto aspect-square max-h-[16rem] w-full">
+                        <ChartContainer
+                          config={pieConfig}
+                          className="mx-auto aspect-square max-h-[16rem] w-full"
+                        >
                           <PieChart>
                             <ChartTooltip
                               content={
@@ -638,8 +636,14 @@ function AdminPage() {
                     <h2 className="mt-1 font-display text-lg tracking-wide">
                       {t("chart_trend_title")}
                     </h2>
-                    <ChartContainer config={trendConfig} className="mt-4 aspect-[16/9] w-full max-h-[16rem]">
-                      <AreaChart data={revenueTrend} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+                    <ChartContainer
+                      config={trendConfig}
+                      className="mt-4 aspect-[16/9] w-full max-h-[16rem]"
+                    >
+                      <AreaChart
+                        data={revenueTrend}
+                        margin={{ left: 4, right: 8, top: 8, bottom: 0 }}
+                      >
                         <defs>
                           <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor="#e11d2e" stopOpacity={0.45} />
@@ -722,7 +726,10 @@ function AdminPage() {
                     <TableBody>
                       {(orders ?? []).length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                          <TableCell
+                            colSpan={7}
+                            className="py-10 text-center text-muted-foreground"
+                          >
                             {t("no_orders")}
                           </TableCell>
                         </TableRow>
@@ -737,84 +744,86 @@ function AdminPage() {
                             );
                           })
                           .map((order) => {
-                          const customer = getUserById(order.user_id);
-                          const pending = order.status === "pending";
-                          return (
-                            <TableRow
-                              key={order.id}
-                              className="cursor-pointer transition hover:bg-primary/5"
-                              onClick={() => setSelectedOrder(order)}
-                            >
-                              <TableCell className="font-mono text-xs">
-                                #{order.id.slice(0, 8)}
-                              </TableCell>
-                              <TableCell>
-                                <div className="min-w-0">
-                                  <p className="truncate text-sm font-medium">
-                                    {customer?.displayName || customer?.email || order.user_id.slice(0, 8)}
-                                  </p>
-                                  {customer?.email && (
-                                    <p className="truncate text-xs text-muted-foreground">
-                                      {customer.email}
+                            const customer = getUserById(order.user_id);
+                            const pending = order.status === "pending";
+                            return (
+                              <TableRow
+                                key={order.id}
+                                className="cursor-pointer transition hover:bg-primary/5"
+                                onClick={() => setSelectedOrder(order)}
+                              >
+                                <TableCell className="font-mono text-xs">
+                                  #{order.id.slice(0, 8)}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="min-w-0">
+                                    <p className="truncate text-sm font-medium">
+                                      {customer?.displayName ||
+                                        customer?.email ||
+                                        order.user_id.slice(0, 8)}
                                     </p>
+                                    {customer?.email && (
+                                      <p className="truncate text-xs text-muted-foreground">
+                                        {customer.email}
+                                      </p>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>{(order.order_items ?? []).length}</TableCell>
+                                <TableCell className="font-bold text-primary">
+                                  {money(order.total)}
+                                </TableCell>
+                                <TableCell className="text-xs text-muted-foreground">
+                                  {new Date(order.created_at).toLocaleDateString(
+                                    lang === "ar" ? "ar" : "en",
+                                    { year: "numeric", month: "short", day: "numeric" },
                                   )}
-                                </div>
-                              </TableCell>
-                              <TableCell>{(order.order_items ?? []).length}</TableCell>
-                              <TableCell className="font-bold text-primary">
-                                {money(order.total)}
-                              </TableCell>
-                              <TableCell className="text-xs text-muted-foreground">
-                                {new Date(order.created_at).toLocaleDateString(
-                                  lang === "ar" ? "ar" : "en",
-                                  { year: "numeric", month: "short", day: "numeric" },
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <span
-                                  className={cn(
-                                    "inline-flex px-2 py-1 text-[10px] tracking-wide uppercase",
-                                    pending
-                                      ? "border border-amber-400/30 bg-amber-400/10 text-amber-200"
-                                      : "border border-emerald-400/25 bg-emerald-400/10 text-emerald-200",
-                                  )}
-                                >
-                                  {orderStatusLabel(order.status)}
-                                </span>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1">
-                                  {pending && (
+                                </TableCell>
+                                <TableCell>
+                                  <span
+                                    className={cn(
+                                      "inline-flex px-2 py-1 text-[10px] tracking-wide uppercase",
+                                      pending
+                                        ? "border border-amber-400/30 bg-amber-400/10 text-amber-200"
+                                        : "border border-emerald-400/25 bg-emerald-400/10 text-emerald-200",
+                                    )}
+                                  >
+                                    {orderStatusLabel(order.status)}
+                                  </span>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1">
+                                    {pending && (
+                                      <Button
+                                        size="sm"
+                                        className="gap-1 text-xs font-semibold"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          void approveOrderMut.mutate(order.id);
+                                        }}
+                                        disabled={approveOrderMut.isPending}
+                                      >
+                                        <Check className="h-3.5 w-3.5" />
+                                        {t("approve_order")}
+                                      </Button>
+                                    )}
                                     <Button
+                                      variant="ghost"
                                       size="sm"
-                                      className="gap-1 text-xs font-semibold"
+                                      className="gap-1 text-xs"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        void approveOrderMut.mutate(order.id);
+                                        setSelectedOrder(order);
                                       }}
-                                      disabled={approveOrderMut.isPending}
                                     >
-                                      <Check className="h-3.5 w-3.5" />
-                                      {t("approve_order")}
+                                      <Eye className="h-3.5 w-3.5" />
+                                      {t("order_view")}
                                     </Button>
-                                  )}
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="gap-1 text-xs"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedOrder(order);
-                                    }}
-                                  >
-                                    <Eye className="h-3.5 w-3.5" />
-                                    {t("order_view")}
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
                       )}
                     </TableBody>
                   </Table>
@@ -861,9 +870,7 @@ function AdminPage() {
                               <p className="text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
                                 {t("customer")}
                               </p>
-                              <p className="mt-1 font-medium">
-                                {customer?.displayName || "—"}
-                              </p>
+                              <p className="mt-1 font-medium">{customer?.displayName || "—"}</p>
                               <p className="mt-0.5 text-sm text-muted-foreground">
                                 {customer?.email || selectedOrder.user_id}
                               </p>
@@ -898,9 +905,7 @@ function AdminPage() {
                                 const title =
                                   lang === "ar"
                                     ? item.title
-                                    : (item.title_en ??
-                                      item.products?.title_en ??
-                                      item.title);
+                                    : (item.title_en ?? item.products?.title_en ?? item.title);
                                 return (
                                   <li key={item.id} className="flex gap-3 p-3">
                                     <div className="h-16 w-20 shrink-0 overflow-hidden border border-white/8">
@@ -936,7 +941,11 @@ function AdminPage() {
                     })()}
 
                     <DialogFooter className="border-t border-white/8 px-6 py-4 sm:justify-between">
-                      <Button variant="outline" className="border-white/15" onClick={() => setSelectedOrder(null)}>
+                      <Button
+                        variant="outline"
+                        className="border-white/15"
+                        onClick={() => setSelectedOrder(null)}
+                      >
                         {t("cancel")}
                       </Button>
                       {!isOrderUnlocked(selectedOrder.status) && (
@@ -969,7 +978,10 @@ function AdminPage() {
                       {t("admin_products_sub")} · {filteredProductCount} {t("products_total")}
                     </p>
                   </div>
-                  <Button className="gap-2 self-start font-semibold sm:self-auto" onClick={openAddProduct}>
+                  <Button
+                    className="gap-2 self-start font-semibold sm:self-auto"
+                    onClick={openAddProduct}
+                  >
                     <Plus className="h-4 w-4" />
                     {t("add_product")}
                   </Button>
@@ -1125,7 +1137,9 @@ function AdminPage() {
                     <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
                       {t("admin_categories")}
                     </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">{t("admin_categories_sub")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("admin_categories_sub")}
+                    </p>
                   </div>
                   <Button className="gap-2 font-semibold" onClick={openAddCategory}>
                     <Plus className="h-4 w-4" />
@@ -1235,9 +1249,7 @@ function AdminPage() {
             <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
               {t("admin_products")}
             </p>
-            <DialogTitle className="mt-1">
-              {editing ? t("edit") : t("add_product")}
-            </DialogTitle>
+            <DialogTitle className="mt-1">{editing ? t("edit") : t("add_product")}</DialogTitle>
             <DialogDescription>
               {editing ? editing.slug : t("admin_products_sub")}
             </DialogDescription>
@@ -1307,7 +1319,10 @@ function AdminPage() {
                     + {t("new_category")}
                   </button>
                 </div>
-                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                <Select
+                  value={form.category}
+                  onValueChange={(v) => setForm({ ...form, category: v })}
+                >
                   <SelectTrigger className="h-10 border-white/12 bg-white/[0.03]">
                     <SelectValue />
                   </SelectTrigger>
@@ -1356,7 +1371,9 @@ function AdminPage() {
                       : "border-white/12 bg-white/[0.02] text-muted-foreground hover:border-white/20",
                   )}
                 >
-                  <span className="block text-[10px] tracking-[0.18em] uppercase">{t("featured")}</span>
+                  <span className="block text-[10px] tracking-[0.18em] uppercase">
+                    {t("featured")}
+                  </span>
                   <span className="mt-1 block font-medium">{form.is_featured ? "On" : "Off"}</span>
                 </button>
                 <button
@@ -1369,8 +1386,12 @@ function AdminPage() {
                       : "border-white/12 bg-white/[0.02] text-muted-foreground hover:border-white/20",
                   )}
                 >
-                  <span className="block text-[10px] tracking-[0.18em] uppercase">{t("active")}</span>
-                  <span className="mt-1 block font-medium">{form.is_active ? t("active") : t("inactive")}</span>
+                  <span className="block text-[10px] tracking-[0.18em] uppercase">
+                    {t("active")}
+                  </span>
+                  <span className="mt-1 block font-medium">
+                    {form.is_active ? t("active") : t("inactive")}
+                  </span>
                 </button>
               </div>
             </section>
@@ -1416,7 +1437,11 @@ function AdminPage() {
           </div>
 
           <DialogFooter className="shrink-0 border-t border-white/8 px-6 py-4 sm:justify-between">
-            <Button variant="outline" className="border-white/15" onClick={() => setDialogOpen(false)}>
+            <Button
+              variant="outline"
+              className="border-white/15"
+              onClick={() => setDialogOpen(false)}
+            >
               {t("cancel")}
             </Button>
             <Button
@@ -1486,7 +1511,11 @@ function AdminPage() {
             </div>
           </div>
           <DialogFooter className="border-t border-white/8 px-6 py-4 sm:justify-between">
-            <Button variant="outline" className="border-white/15" onClick={() => setCategoryDialogOpen(false)}>
+            <Button
+              variant="outline"
+              className="border-white/15"
+              onClick={() => setCategoryDialogOpen(false)}
+            >
               {t("cancel")}
             </Button>
             <Button

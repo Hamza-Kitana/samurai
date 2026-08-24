@@ -73,8 +73,7 @@ function ProfilePage() {
   const totalSpent = (orders ?? [])
     .filter((o) => o.status === "approved" || o.status === "paid")
     .reduce((sum, order) => sum + Number(order.total), 0);
-  const displayName =
-    user.displayName?.trim() || user.email.split("@")[0] || "User";
+  const displayName = user.displayName?.trim() || user.email.split("@")[0] || "User";
   const initial = displayName.charAt(0).toUpperCase();
   const memberSince = (orders ?? []).length
     ? new Date(
@@ -233,7 +232,9 @@ function ProfilePage() {
                       <span
                         className={cn(
                           "ms-1 min-w-5 px-1 text-[10px]",
-                          active ? "bg-black/20 text-primary-foreground" : "bg-white/8 text-foreground",
+                          active
+                            ? "bg-black/20 text-primary-foreground"
+                            : "bg-white/8 text-foreground",
                         )}
                       >
                         {item.count}
@@ -457,9 +458,7 @@ function ProfilePage() {
 
               <div className="flex flex-col justify-between border border-white/10 bg-gradient-to-br from-primary/15 via-[#14120e] to-[#0f0d0b] p-6 sm:p-8">
                 <div>
-                  <p className="text-[11px] tracking-[0.28em] text-primary uppercase">
-                    KATARO
-                  </p>
+                  <p className="text-[11px] tracking-[0.28em] text-primary uppercase">KATARO</p>
                   <h3 className="mt-3 font-display text-2xl font-semibold tracking-wide">
                     {t("profile_member")}
                   </h3>
@@ -482,15 +481,7 @@ function ProfilePage() {
   );
 }
 
-function EmptyState({
-  title,
-  sub,
-  cta,
-}: {
-  title: string;
-  sub: string;
-  cta: string;
-}) {
+function EmptyState({ title, sub, cta }: { title: string; sub: string; cta: string }) {
   return (
     <div className="relative overflow-hidden border border-white/10 bg-[#12100e] px-6 py-20 text-center">
       <img

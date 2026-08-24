@@ -221,8 +221,18 @@ const SEED_PRODUCTS: Product[] = [
     category: "maps",
     price: 49,
     image_url: "/images/p-casino.png",
-    features_ar: ["تصميم داخلي كامل", "إضاءة RTX واقعية", "محسّن للأداء (FPS)", "تركيب سهل بدقيقتين"],
-    features_en: ["Full custom interior", "Realistic lighting", "FPS optimized", "2-minute install"],
+    features_ar: [
+      "تصميم داخلي كامل",
+      "إضاءة RTX واقعية",
+      "محسّن للأداء (FPS)",
+      "تركيب سهل بدقيقتين",
+    ],
+    features_en: [
+      "Full custom interior",
+      "Realistic lighting",
+      "FPS optimized",
+      "2-minute install",
+    ],
     install_ar: [
       "حمّل ملف الماب بعد الشراء من حسابك",
       "ضع المجلد داخل resources في سيرفرك",
@@ -313,7 +323,12 @@ const SEED_PRODUCTS: Product[] = [
     category: "scripts",
     price: 59,
     image_url: "/images/p-heist.png",
-    features_ar: ["يدعم ESX و QBCore", "مهام متعددة المراحل", "إعدادات كاملة في config", "تحديثات مجانية"],
+    features_ar: [
+      "يدعم ESX و QBCore",
+      "مهام متعددة المراحل",
+      "إعدادات كاملة في config",
+      "تحديثات مجانية",
+    ],
     features_en: ["ESX & QBCore", "Multi-stage missions", "Full config", "Free updates"],
     install_ar: [
       "حمّل السكربت من صفحة التحميلات في حسابك",
@@ -434,7 +449,8 @@ const SEED_PRODUCTS: Product[] = [
     short_ar: "ملابس شوارع عصرية",
     short_en: "Modern streetwear collection",
     description_ar: "مجموعة ملابس شوارع عصرية تشمل هوديز وجاكيتات وأحذية بجودة عالية.",
-    description_en: "A modern streetwear collection with hoodies, jackets and sneakers in high quality.",
+    description_en:
+      "A modern streetwear collection with hoodies, jackets and sneakers in high quality.",
     category: "clothing",
     price: 24,
     image_url: "/images/p-street.png",
@@ -463,8 +479,10 @@ const SEED_PRODUCTS: Product[] = [
     title_en: "JDM Car Pack",
     short_ar: "10 سيارات يابانية معدلة",
     short_en: "10 tuned Japanese cars",
-    description_ar: "باقة سيارات يابانية بتفاصيل داخلية كاملة، أصوات محركات حقيقية، ودعم كامل للتعديل.",
-    description_en: "Japanese car pack with full interiors, real engine sounds and complete tuning support.",
+    description_ar:
+      "باقة سيارات يابانية بتفاصيل داخلية كاملة، أصوات محركات حقيقية، ودعم كامل للتعديل.",
+    description_en:
+      "Japanese car pack with full interiors, real engine sounds and complete tuning support.",
     category: "vehicles",
     price: 54,
     image_url: "/images/p-jdm.png",
@@ -555,7 +573,8 @@ const SEED_PRODUCTS: Product[] = [
     short_ar: "سوق ليلي ياباني مليء بالتفاصيل",
     short_en: "Japanese night market full of detail",
     description_ar: "ماب سوق ليلي بأكشاك مضيئة، حشود متحركة، وأجواء مطر واقعية.",
-    description_en: "A night market with glowing stalls, animated crowds and realistic rain ambience.",
+    description_en:
+      "A night market with glowing stalls, animated crowds and realistic rain ambience.",
     category: "maps",
     price: 37,
     image_url: "/images/p-market.png",
@@ -598,7 +617,8 @@ export function ensureSeed() {
   if (typeof window === "undefined") return;
 
   try {
-    const needsReseed = !hasKey(KEYS.version) || localStorage.getItem(KEYS.version) !== DATA_VERSION;
+    const needsReseed =
+      !hasKey(KEYS.version) || localStorage.getItem(KEYS.version) !== DATA_VERSION;
     if (needsReseed || !hasKey(KEYS.products)) {
       // Clear analytics only — keep user orders intact
       freeLocalStorageSpace();
@@ -630,7 +650,8 @@ export function ensureSeed() {
   } catch (err) {
     console.warn("ensureSeed failed safely", err);
     // Guarantee in-memory catalog so UI still works
-    if (!memoryStore.has(KEYS.products)) memoryStore.set(KEYS.products, JSON.stringify(SEED_PRODUCTS));
+    if (!memoryStore.has(KEYS.products))
+      memoryStore.set(KEYS.products, JSON.stringify(SEED_PRODUCTS));
     if (!memoryStore.has(KEYS.categories)) {
       memoryStore.set(KEYS.categories, JSON.stringify(SEED_CATEGORIES));
     }
@@ -723,7 +744,9 @@ export function getProductBySlug(slug: string): Product | null {
 }
 
 export function getFeaturedProducts(): Product[] {
-  return getProducts().filter((p) => p.is_featured).slice(0, 4);
+  return getProducts()
+    .filter((p) => p.is_featured)
+    .slice(0, 4);
 }
 
 export function getProductFileMeta(productId: string): ProductFile | null {
@@ -981,9 +1004,7 @@ export function getAllOrders(): Order[] {
 export function getUserDownloads(userId: string): ProductFile[] {
   ensureSeed();
   const orders = getUserOrders(userId).filter((o) => isUnlockedStatus(o.status));
-  const productIds = new Set(
-    orders.flatMap((o) => o.order_items.map((i) => i.product_id)),
-  );
+  const productIds = new Set(orders.flatMap((o) => o.order_items.map((i) => i.product_id)));
   const products = getProducts(true);
   return read<ProductFile[]>(KEYS.files, [])
     .filter((f) => productIds.has(f.product_id))

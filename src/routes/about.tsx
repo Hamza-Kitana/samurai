@@ -21,7 +21,13 @@ function AboutPage() {
   return (
     <PageLayout fullWidth>
       <div className="animate-rise pb-16">
-        <section className={cn("relative w-full overflow-hidden border-b border-white/8", navPull, navOffset)}>
+        <section
+          className={cn(
+            "relative w-full overflow-hidden border-b border-white/8",
+            navPull,
+            navOffset,
+          )}
+        >
           <div className="absolute inset-0">
             <img
               src="/images/hero-bg.png"
@@ -97,10 +103,7 @@ function AboutPage() {
 
           <div className="mt-10 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-3">
             {pillars.map(({ icon: Icon, title, body }) => (
-              <article
-                key={title}
-                className="bg-[#12100e] px-6 py-8 transition hover:bg-[#16130f]"
-              >
+              <article key={title} className="bg-[#12100e] px-6 py-8 transition hover:bg-[#16130f]">
                 <div className="mb-5 flex h-11 w-11 items-center justify-center border border-primary/30 bg-primary/10">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>

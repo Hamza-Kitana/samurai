@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { PageLayout, pageGutter, navPull, navOffset, navStickyTop } from "@/components/layout/PageLayout";
+import {
+  PageLayout,
+  pageGutter,
+  navPull,
+  navOffset,
+  navStickyTop,
+} from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/store/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLang } from "@/lib/i18n";
@@ -23,21 +29,25 @@ function StorePage() {
   const { data: products, isLoading, error } = useProducts(category);
   const { data: categories } = useCategories();
 
-  const displayed = featured
-    ? (products ?? []).filter((p) => p.is_featured)
-    : products;
+  const displayed = featured ? (products ?? []).filter((p) => p.is_featured) : products;
 
   const activeCategory =
     category === "all"
       ? t("all")
-      : (categories ?? []).find((c) => c.slug === category)?.[
+      : ((categories ?? []).find((c) => c.slug === category)?.[
           lang === "ar" ? "name_ar" : "name_en"
-        ] ?? category;
+        ] ?? category);
 
   return (
     <PageLayout fullWidth>
       <div className="animate-rise">
-        <section className={cn("relative w-full overflow-hidden border-b border-white/8", navPull, navOffset)}>
+        <section
+          className={cn(
+            "relative w-full overflow-hidden border-b border-white/8",
+            navPull,
+            navOffset,
+          )}
+        >
           <div className="absolute inset-0">
             <img
               src="/images/hero-bg.png"
@@ -67,7 +77,12 @@ function StorePage() {
           </div>
         </section>
 
-        <section className={cn("sticky z-40 border-b border-white/8 bg-background/92 backdrop-blur-xl", navStickyTop)}>
+        <section
+          className={cn(
+            "sticky z-40 border-b border-white/8 bg-background/92 backdrop-blur-xl",
+            navStickyTop,
+          )}
+        >
           <div className={cn("relative flex items-center justify-center py-4", pageGutter)}>
             <div className="flex justify-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button

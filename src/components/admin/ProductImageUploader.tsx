@@ -9,7 +9,11 @@ type ProductImageUploaderProps = {
   maxImages?: number;
 };
 
-async function fileToCompressedDataUrl(file: File, maxSize = 1200, quality = 0.78): Promise<string> {
+async function fileToCompressedDataUrl(
+  file: File,
+  maxSize = 1200,
+  quality = 0.78,
+): Promise<string> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
@@ -101,7 +105,11 @@ export function ProductImageUploader({
         )}
       >
         <div className="flex h-11 w-11 items-center justify-center border border-primary/30 bg-primary/10">
-          {busy ? <Upload className="h-5 w-5 animate-pulse text-primary" /> : <ImagePlus className="h-5 w-5 text-primary" />}
+          {busy ? (
+            <Upload className="h-5 w-5 animate-pulse text-primary" />
+          ) : (
+            <ImagePlus className="h-5 w-5 text-primary" />
+          )}
         </div>
         <p className="text-sm font-medium text-foreground/90">{t("images_drop")}</p>
         <p className="text-xs text-muted-foreground">{t("images_drop_hint")}</p>

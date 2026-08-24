@@ -151,12 +151,7 @@ function ProductPage() {
 
         {install.length > 0 && (
           <section className="w-full border-b border-white/8 bg-[#12100e]">
-            <div
-              className={cn(
-                "flex items-center gap-3 border-b border-white/8 py-5",
-                pageGutter,
-              )}
-            >
+            <div className={cn("flex items-center gap-3 border-b border-white/8 py-5", pageGutter)}>
               <div className="flex h-11 w-11 items-center justify-center border border-primary/30 bg-primary/10">
                 <Wrench className="h-5 w-5 text-primary" />
               </div>
@@ -172,10 +167,7 @@ function ProductPage() {
 
             <ol className="divide-y divide-white/8">
               {install.map((step, index) => (
-                <li
-                  key={`${index}-${step}`}
-                  className={cn("flex gap-4 py-5 sm:gap-5", pageGutter)}
-                >
+                <li key={`${index}-${step}`} className={cn("flex gap-4 py-5 sm:gap-5", pageGutter)}>
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-primary/35 bg-primary/10 font-display text-sm font-semibold text-primary">
                     {index + 1}
                   </span>
@@ -186,7 +178,12 @@ function ProductPage() {
               ))}
             </ol>
 
-            <p className={cn("border-t border-white/8 py-3 text-xs text-muted-foreground", pageGutter)}>
+            <p
+              className={cn(
+                "border-t border-white/8 py-3 text-xs text-muted-foreground",
+                pageGutter,
+              )}
+            >
               {t("install_note")}
             </p>
           </section>

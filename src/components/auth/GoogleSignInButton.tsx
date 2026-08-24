@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  getGoogleClientId,
-  loadGoogleScript,
-  parseGoogleCredential,
-} from "@/lib/google-auth";
+import { getGoogleClientId, loadGoogleScript, parseGoogleCredential } from "@/lib/google-auth";
 import { useAuth } from "@/lib/store";
 import { useLang } from "@/lib/i18n";
 

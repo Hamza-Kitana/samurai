@@ -46,9 +46,7 @@ export function getGoogleClientId() {
 export function parseGoogleCredential(credential: string): GoogleProfile {
   const payload = credential.split(".")[1];
   if (!payload) throw new Error("Invalid Google credential");
-  const json = JSON.parse(
-    atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
-  ) as {
+  const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))) as {
     sub: string;
     email: string;
     name?: string;
@@ -72,7 +70,7 @@ export function loadGoogleScript() {
   if (scriptPromise) return scriptPromise;
 
   scriptPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>('script[data-google-gsi]');
+    const existing = document.querySelector<HTMLScriptElement>("script[data-google-gsi]");
     if (existing) {
       existing.addEventListener("load", () => resolve());
       existing.addEventListener("error", () => reject(new Error("Failed to load Google")));

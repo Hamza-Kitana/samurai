@@ -45,8 +45,7 @@ export function Hero3D() {
           <div className="gold-line animate-line-grow mb-6 h-px w-24 sm:w-32" />
 
           <p className="max-w-md font-display text-lg font-medium leading-snug text-white/90 sm:text-2xl">
-            {t("hero_title")}{" "}
-            <span className="text-gold-gradient">{t("hero_title2")}</span>
+            {t("hero_title")} <span className="text-gold-gradient">{t("hero_title2")}</span>
           </p>
 
           <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/55 sm:text-[15px]">

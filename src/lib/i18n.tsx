@@ -98,8 +98,7 @@ const dict = {
     or_continue: "أو تابع عبر",
     google_login: "المتابعة مع Google",
     staff_login: "دخول الإدارة",
-    google_setup_hint:
-      "أضف VITE_GOOGLE_CLIENT_ID في ملف .env لتفعيل تسجيل الدخول عبر Google.",
+    google_setup_hint: "أضف VITE_GOOGLE_CLIENT_ID في ملف .env لتفعيل تسجيل الدخول عبر Google.",
     google_load_error: "تعذر تحميل خدمة Google",
     admin_orders: "الطلبات",
     admin_products: "المنتجات",
@@ -159,8 +158,7 @@ const dict = {
     loading_splash: "جاري تجهيز العالم",
     back_store: "رجوع للمتجر",
     related: "منتجات مشابهة",
-    secure_note:
-      "لا يوجد دفع بالبطاقة حالياً. بعد تأكيد الطلب تواصل مع الإدارة لتفعيل ملفاتك.",
+    secure_note: "لا يوجد دفع بالبطاقة حالياً. بعد تأكيد الطلب تواصل مع الإدارة لتفعيل ملفاتك.",
     interest_views: "المشاهدات",
     interest_carts: "الإضافات للسلة",
     product: "المنتج",
@@ -269,7 +267,8 @@ const dict = {
     profile_empty_title: "No downloads yet",
     profile_empty_sub: "After the admin approves your order, your files will show here.",
     profile_waiting_title: "Waiting for admin approval",
-    profile_waiting_sub: "We received your order. Contact us to complete payment and unlock downloads.",
+    profile_waiting_sub:
+      "We received your order. Contact us to complete payment and unlock downloads.",
     profile_ready: "Ready to download",
     total_spent: "Total spent",
     my_orders: "My orders",

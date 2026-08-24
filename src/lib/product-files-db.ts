@@ -33,7 +33,9 @@ export async function putProductBlob(productId: string, fileName: string, blob: 
   const db = await openDb();
   try {
     const tx = db.transaction(STORE, "readwrite");
-    await reqToPromise(tx.objectStore(STORE).put({ productId, fileName, blob } satisfies StoredProductFile));
+    await reqToPromise(
+      tx.objectStore(STORE).put({ productId, fileName, blob } satisfies StoredProductFile),
+    );
   } finally {
     db.close();
   }

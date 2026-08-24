@@ -179,7 +179,12 @@ export function LoginDialog() {
                     />
                   </div>
                   {error && <p className="text-sm text-destructive">{error}</p>}
-                  <Button type="submit" size="lg" className="w-full font-semibold" disabled={loading}>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full font-semibold"
+                    disabled={loading}
+                  >
                     {loading ? t("loading") : t("login")}
                   </Button>
                 </form>

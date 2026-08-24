@@ -15,7 +15,11 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function ProductFileUploader({ fileName, hasPendingFile, onFile }: ProductFileUploaderProps) {
+export function ProductFileUploader({
+  fileName,
+  hasPendingFile,
+  onFile,
+}: ProductFileUploaderProps) {
   const { t } = useLang();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);

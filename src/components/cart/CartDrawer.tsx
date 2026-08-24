@@ -61,10 +61,7 @@ export function CartDrawer() {
                 {items.map((item) => {
                   const title = lang === "ar" ? item.title_ar : item.title_en;
                   return (
-                    <li
-                      key={item.id}
-                      className="flex gap-3 border border-white/8 bg-[#14120e] p-3"
-                    >
+                    <li key={item.id} className="flex gap-3 border border-white/8 bg-[#14120e] p-3">
                       <div className="h-16 w-20 shrink-0 overflow-hidden">
                         <ProductImage title={title} imageUrl={item.image_url} category="maps" />
                       </div>

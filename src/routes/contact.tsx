@@ -36,7 +36,13 @@ function ContactPage() {
   return (
     <PageLayout fullWidth>
       <div className="animate-rise pb-16">
-        <section className={cn("relative w-full overflow-hidden border-b border-white/8", navPull, navOffset)}>
+        <section
+          className={cn(
+            "relative w-full overflow-hidden border-b border-white/8",
+            navPull,
+            navOffset,
+          )}
+        >
           <div className="absolute inset-0">
             <img
               src="/images/hero-bg.png"
