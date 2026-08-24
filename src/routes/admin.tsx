@@ -10,6 +10,10 @@ import {
   Trash2,
   Pencil,
   Tags,
+  Search,
+  Star,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -18,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -127,6 +130,7 @@ function AdminPage() {
   const [form, setForm] = useState(emptyProduct);
   const [categoryForm, setCategoryForm] = useState(emptyCategory);
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [productSearch, setProductSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
@@ -160,8 +164,16 @@ function AdminPage() {
 
   const groupedProducts = useMemo(() => {
     const list = products ?? [];
-    const filtered =
-      filterCategory === "all" ? list : list.filter((p) => p.category === filterCategory);
+    const q = productSearch.trim().toLowerCase();
+    const filtered = list.filter((p) => {
+      if (filterCategory !== "all" && p.category !== filterCategory) return false;
+      if (!q) return true;
+      return (
+        p.title_ar.toLowerCase().includes(q) ||
+        p.title_en.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q)
+      );
+    });
     const groups: { slug: string; label: string; items: Product[] }[] = [];
     const order = (categories ?? []).map((c) => c.slug);
 
@@ -178,7 +190,12 @@ function AdminPage() {
       groups.push({ slug: "_other", label: "—", items: orphan });
     }
     return groups;
-  }, [products, categories, filterCategory, lang]);
+  }, [products, categories, filterCategory, productSearch, lang]);
+
+  const filteredProductCount = useMemo(
+    () => groupedProducts.reduce((n, g) => n + g.items.length, 0),
+    [groupedProducts],
+  );
 
   const categorySales = useMemo(() => {
     const map = new Map<string, number>();
@@ -425,31 +442,40 @@ function AdminPage() {
 
   return (
     <PageLayout fullWidth>
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        <aside className="hidden w-56 shrink-0 border-e border-border bg-sidebar p-4 md:block">
-          <h2 className="mb-6 font-display text-lg font-bold text-gold-gradient">{t("nav_admin")}</h2>
-          <nav className="space-y-1">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-[#0a0908]">
+        <aside className="hidden w-64 shrink-0 border-e border-white/8 bg-[#0e0c0a] md:flex md:flex-col">
+          <div className="border-b border-white/8 px-5 py-6">
+            <p className="text-[10px] tracking-[0.28em] text-primary uppercase">{t("admin_panel")}</p>
+            <h2 className="mt-2 font-display text-xl font-bold tracking-wide text-gold-gradient">
+              {t("nav_admin")}
+            </h2>
+          </div>
+          <nav className="flex flex-1 flex-col gap-1 p-3">
             {navItems.map(({ id, icon: Icon, label }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setTab(id)}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                  "flex w-full items-center gap-3 px-3 py-2.5 text-sm transition",
                   tab === id
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50",
+                    ? "border border-primary/35 bg-primary/10 text-primary"
+                    : "border border-transparent text-white/60 hover:border-white/10 hover:bg-white/[0.03] hover:text-white",
                 )}
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="font-medium">{label}</span>
               </button>
             ))}
           </nav>
+          <div className="border-t border-white/8 px-5 py-4 text-xs text-white/35">
+            {(products ?? []).length} {t("products_total")} · {(orders ?? []).length}{" "}
+            {t("orders_count")}
+          </div>
         </aside>
 
-        <div className="flex w-full flex-col">
-          <div className="flex gap-1 overflow-x-auto border-b border-border p-2 md:hidden">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex gap-1 overflow-x-auto border-b border-white/8 bg-[#0e0c0a] p-2 md:hidden">
             {navItems.map(({ id, label }) => (
               <Button
                 key={id}
@@ -462,163 +488,195 @@ function AdminPage() {
             ))}
           </div>
 
-          <div className="flex-1 p-4 sm:p-6">
+          <div className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">
             {tab === "overview" && (
-              <div className="space-y-6">
-                <h1 className="font-display text-2xl font-bold">{t("admin_overview")}</h1>
+              <div className="mx-auto max-w-6xl space-y-8">
+                <header>
+                  <p className="text-[11px] tracking-[0.24em] text-primary uppercase">
+                    {t("admin_panel")}
+                  </p>
+                  <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                    {t("admin_overview")}
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("admin_overview_sub")}</p>
+                </header>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <Card className="surface-panel border-white/10 bg-[#12100e]">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-muted-foreground">{t("revenue")}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="font-display text-2xl font-bold text-gold-gradient">
-                        {money(totalRevenue)}
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="surface-panel border-white/10 bg-[#12100e]">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-muted-foreground">{t("orders_count")}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="font-display text-2xl font-bold">{(orders ?? []).length}</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="surface-panel border-white/10 bg-[#12100e]">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-muted-foreground">{t("customers")}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="font-display text-2xl font-bold">{uniqueCustomers}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="border border-white/10 bg-[#12100e] p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                          {t("revenue")}
+                        </p>
+                        <p className="mt-3 font-display text-3xl font-bold tracking-wide text-gold-gradient">
+                          {money(totalRevenue)}
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 items-center justify-center border border-primary/25 bg-primary/10">
+                        <Wallet className="h-4 w-4 text-primary" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border border-white/10 bg-[#12100e] p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                          {t("orders_count")}
+                        </p>
+                        <p className="mt-3 font-display text-3xl font-bold tracking-wide">
+                          {(orders ?? []).length}
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 items-center justify-center border border-primary/25 bg-primary/10">
+                        <ShoppingBag className="h-4 w-4 text-primary" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border border-white/10 bg-[#12100e] p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                          {t("customers")}
+                        </p>
+                        <p className="mt-3 font-display text-3xl font-bold tracking-wide">
+                          {uniqueCustomers}
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 items-center justify-center border border-primary/25 bg-primary/10">
+                        <Users className="h-4 w-4 text-primary" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                  <Card className="surface-panel border-white/10 bg-[#12100e]">
-                    <CardHeader className="pb-2">
-                      <p className="text-[11px] tracking-[0.22em] text-primary uppercase">
-                        {t("chart_category_kicker")}
+                  <div className="border border-white/10 bg-[#12100e] p-5">
+                    <p className="text-[11px] tracking-[0.22em] text-primary uppercase">
+                      {t("chart_category_kicker")}
+                    </p>
+                    <h2 className="mt-1 font-display text-lg tracking-wide">
+                      {t("chart_category_title")}
+                    </h2>
+                    {categorySales.length === 0 ? (
+                      <p className="py-16 text-center text-sm text-muted-foreground">
+                        {t("chart_empty")}
                       </p>
-                      <CardTitle className="font-display text-lg tracking-wide">
-                        {t("chart_category_title")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {categorySales.length === 0 ? (
-                        <p className="py-16 text-center text-sm text-muted-foreground">
-                          {t("chart_empty")}
-                        </p>
-                      ) : (
-                        <div className="grid gap-4 sm:grid-cols-[1fr_9rem] sm:items-center">
-                          <ChartContainer config={pieConfig} className="mx-auto aspect-square max-h-[16rem] w-full">
-                            <PieChart>
-                              <ChartTooltip
-                                content={
-                                  <ChartTooltipContent
-                                    formatter={(value) =>
-                                      (orders ?? []).some((o) => (o.order_items ?? []).length > 0)
-                                        ? money(Number(value))
-                                        : String(value)
-                                    }
-                                  />
-                                }
-                              />
-                              <Pie
-                                data={categorySales}
-                                dataKey="value"
-                                nameKey="name"
-                                innerRadius={58}
-                                outerRadius={88}
-                                paddingAngle={3}
-                                stroke="transparent"
-                              >
-                                {categorySales.map((entry) => (
-                                  <Cell key={entry.slug} fill={entry.fill} />
-                                ))}
-                              </Pie>
-                            </PieChart>
-                          </ChartContainer>
-                          <ul className="space-y-2">
-                            {categorySales.slice(0, 6).map((row) => (
-                              <li key={row.slug} className="flex items-center gap-2 text-xs">
-                                <span
-                                  className="h-2.5 w-2.5 shrink-0"
-                                  style={{ backgroundColor: row.fill }}
+                    ) : (
+                      <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_9rem] sm:items-center">
+                        <ChartContainer config={pieConfig} className="mx-auto aspect-square max-h-[16rem] w-full">
+                          <PieChart>
+                            <ChartTooltip
+                              content={
+                                <ChartTooltipContent
+                                  formatter={(value) =>
+                                    (orders ?? []).some((o) => (o.order_items ?? []).length > 0)
+                                      ? money(Number(value))
+                                      : String(value)
+                                  }
                                 />
-                                <span className="min-w-0 flex-1 truncate text-muted-foreground">
-                                  {row.name}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="surface-panel border-white/10 bg-[#12100e]">
-                    <CardHeader className="pb-2">
-                      <p className="text-[11px] tracking-[0.22em] text-primary uppercase">
-                        {t("chart_trend_kicker")}
-                      </p>
-                      <CardTitle className="font-display text-lg tracking-wide">
-                        {t("chart_trend_title")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ChartContainer config={trendConfig} className="aspect-[16/9] w-full max-h-[16rem]">
-                        <AreaChart data={revenueTrend} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#e8c56a" stopOpacity={0.45} />
-                              <stop offset="100%" stopColor="#e8c56a" stopOpacity={0.02} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
-                          <XAxis
-                            dataKey="label"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            minTickGap={18}
-                            tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-                          />
-                          <YAxis
-                            tickLine={false}
-                            axisLine={false}
-                            width={36}
-                            tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
-                          />
-                          <ChartTooltip
-                            content={
-                              <ChartTooltipContent
-                                formatter={(value, name) =>
-                                  name === "revenue" ? money(Number(value)) : String(value)
-                                }
+                              }
+                            />
+                            <Pie
+                              data={categorySales}
+                              dataKey="value"
+                              nameKey="name"
+                              innerRadius={58}
+                              outerRadius={88}
+                              paddingAngle={3}
+                              stroke="transparent"
+                            >
+                              {categorySales.map((entry) => (
+                                <Cell key={entry.slug} fill={entry.fill} />
+                              ))}
+                            </Pie>
+                          </PieChart>
+                        </ChartContainer>
+                        <ul className="space-y-2">
+                          {categorySales.slice(0, 6).map((row) => (
+                            <li key={row.slug} className="flex items-center gap-2 text-xs">
+                              <span
+                                className="h-2.5 w-2.5 shrink-0"
+                                style={{ backgroundColor: row.fill }}
                               />
-                            }
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="revenue"
-                            stroke="#e8c56a"
-                            strokeWidth={2.2}
-                            fill="url(#revenueFill)"
-                          />
-                        </AreaChart>
-                      </ChartContainer>
-                    </CardContent>
-                  </Card>
+                              <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                                {row.name}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border border-white/10 bg-[#12100e] p-5">
+                    <p className="text-[11px] tracking-[0.22em] text-primary uppercase">
+                      {t("chart_trend_kicker")}
+                    </p>
+                    <h2 className="mt-1 font-display text-lg tracking-wide">
+                      {t("chart_trend_title")}
+                    </h2>
+                    <ChartContainer config={trendConfig} className="mt-4 aspect-[16/9] w-full max-h-[16rem]">
+                      <AreaChart data={revenueTrend} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#e8c56a" stopOpacity={0.45} />
+                            <stop offset="100%" stopColor="#e8c56a" stopOpacity={0.02} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                        <XAxis
+                          dataKey="label"
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          minTickGap={18}
+                          tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          width={36}
+                          tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
+                        />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) =>
+                                name === "revenue" ? money(Number(value)) : String(value)
+                              }
+                            />
+                          }
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="revenue"
+                          stroke="#e8c56a"
+                          strokeWidth={2.2}
+                          fill="url(#revenueFill)"
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
             )}
 
             {tab === "orders" && (
-              <div className="space-y-4">
-                <h1 className="font-display text-2xl font-bold">{t("admin_orders")}</h1>
-                <div className="surface-panel overflow-hidden rounded-xl">
+              <div className="mx-auto max-w-6xl space-y-6">
+                <header className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] tracking-[0.24em] text-primary uppercase">
+                      {t("admin_panel")}
+                    </p>
+                    <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                      {t("admin_orders")}
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("admin_orders_sub")}</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {(orders ?? []).length} {t("orders_count")}
+                  </p>
+                </header>
+                <div className="overflow-hidden border border-white/10 bg-[#12100e]">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -806,116 +864,218 @@ function AdminPage() {
             </Dialog>
 
             {tab === "products" && (
-              <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h1 className="font-display text-2xl font-bold">{t("admin_products")}</h1>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Select value={filterCategory} onValueChange={setFilterCategory}>
-                      <SelectTrigger className="w-[160px]">
-                        <SelectValue placeholder={t("category")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t("all")}</SelectItem>
-                        {(categories ?? []).map((c) => (
-                          <SelectItem key={c.id} value={c.slug}>
-                            {lang === "ar" ? c.name_ar : c.name_en}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline" className="gap-1" onClick={openAddCategory}>
-                      <Tags className="h-4 w-4" />
-                      {t("add_category")}
-                    </Button>
-                    <Button className="gap-1" onClick={openAddProduct}>
+              <div className="mx-auto max-w-6xl space-y-6">
+                <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-[11px] tracking-[0.24em] text-primary uppercase">
+                      {t("admin_panel")}
+                    </p>
+                    <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                      {t("admin_products")}
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("admin_products_sub")} · {filteredProductCount} {t("products_total")}
+                    </p>
+                  </div>
+                  <Button className="gap-2 self-start font-semibold sm:self-auto" onClick={openAddProduct}>
+                    <Plus className="h-4 w-4" />
+                    {t("add_product")}
+                  </Button>
+                </header>
+
+                <div className="flex flex-col gap-3 border border-white/10 bg-[#12100e] p-3 sm:flex-row sm:items-center">
+                  <div className="relative min-w-0 flex-1">
+                    <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      placeholder={t("search_products")}
+                      className="border-white/10 bg-[#0e0c0a] ps-9"
+                    />
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("all")}
+                      className={cn(
+                        "shrink-0 px-3 py-2 text-xs tracking-wide transition",
+                        filterCategory === "all"
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-white/12 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                      )}
+                    >
+                      {t("all")}
+                    </button>
+                    {(categories ?? []).map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setFilterCategory(c.slug)}
+                        className={cn(
+                          "shrink-0 px-3 py-2 text-xs tracking-wide transition",
+                          filterCategory === c.slug
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-white/12 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                        )}
+                      >
+                        {lang === "ar" ? c.name_ar : c.name_en}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {groupedProducts.length === 0 ? (
+                  <div className="border border-dashed border-white/15 bg-[#12100e] px-6 py-20 text-center">
+                    <Package className="mx-auto h-8 w-8 text-primary/50" />
+                    <p className="mt-4 text-sm text-muted-foreground">{t("no_products")}</p>
+                    <Button className="mt-5 gap-2" onClick={openAddProduct}>
                       <Plus className="h-4 w-4" />
                       {t("add_product")}
                     </Button>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-10">
+                    {groupedProducts.map((group) => (
+                      <section key={group.slug} className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <h2 className="font-display text-lg font-semibold tracking-wide text-primary">
+                            {group.label}
+                          </h2>
+                          <span className="text-xs text-muted-foreground">
+                            {group.items.length} {t("products_in_category")}
+                          </span>
+                          <div className="h-px flex-1 bg-white/8" />
+                        </div>
 
-                {groupedProducts.map((group) => (
-                  <div key={group.slug} className="space-y-2">
-                    <div className="flex items-center gap-2 border-b border-border/50 pb-2">
-                      <h2 className="font-display text-lg font-semibold text-primary">{group.label}</h2>
-                      <Badge variant="outline">
-                        {group.items.length} {t("products_in_category")}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      {group.items.map((product) => {
-                        const title = lang === "ar" ? product.title_ar : product.title_en;
-                        return (
-                          <Card key={product.id} className="surface-panel">
-                            <CardContent className="flex items-center justify-between gap-4 p-4">
-                              <div>
-                                <p className="font-medium">{title}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  {money(product.price)} · {categoryName(product.category)}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {product.is_featured && <Badge>★</Badge>}
-                                {!product.is_active && <Badge variant="outline">off</Badge>}
-                                <Button size="icon" variant="ghost" onClick={() => openEdit(product)}>
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => void deleteProduct.mutate(product.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
+                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                          {group.items.map((product) => {
+                            const title = lang === "ar" ? product.title_ar : product.title_en;
+                            const cover = product.image_url ?? product.images?.[0] ?? null;
+                            return (
+                              <article
+                                key={product.id}
+                                className="group flex flex-col overflow-hidden border border-white/10 bg-[#12100e] transition hover:border-primary/35"
+                              >
+                                <div className="relative aspect-[16/10] overflow-hidden bg-[#0e0c0a]">
+                                  <ProductImage
+                                    title={title}
+                                    imageUrl={cover}
+                                    category={product.category}
+                                    className="h-full transition duration-500 group-hover:scale-[1.03]"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-[#12100e] via-transparent to-transparent" />
+                                  <div className="absolute start-2 top-2 flex flex-wrap gap-1.5">
+                                    {product.is_featured && (
+                                      <span className="inline-flex items-center gap-1 bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                                        <Star className="h-3 w-3" />
+                                        {t("featured")}
+                                      </span>
+                                    )}
+                                    {!product.is_active && (
+                                      <span className="bg-black/70 px-1.5 py-0.5 text-[10px] text-white/80 backdrop-blur-sm">
+                                        {t("inactive")}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-1 flex-col gap-3 p-4">
+                                  <div className="min-w-0 flex-1">
+                                    <h3 className="truncate font-display text-base font-semibold tracking-wide">
+                                      {title}
+                                    </h3>
+                                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                                      {product.slug} · {categoryName(product.category)}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2 border-t border-white/8 pt-3">
+                                    <p className="font-display text-lg font-semibold text-gold-gradient">
+                                      {money(product.price)}
+                                    </p>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-8 w-8 border border-transparent hover:border-white/15"
+                                        onClick={() => openEdit(product)}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-8 w-8 border border-transparent hover:border-destructive/30"
+                                        onClick={() => void deleteProduct.mutate(product.id)}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
 
             {tab === "categories" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h1 className="font-display text-2xl font-bold">{t("admin_categories")}</h1>
-                  <Button className="gap-1" onClick={openAddCategory}>
+              <div className="mx-auto max-w-6xl space-y-6">
+                <header className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] tracking-[0.24em] text-primary uppercase">
+                      {t("admin_panel")}
+                    </p>
+                    <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                      {t("admin_categories")}
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("admin_categories_sub")}</p>
+                  </div>
+                  <Button className="gap-2 font-semibold" onClick={openAddCategory}>
                     <Plus className="h-4 w-4" />
                     {t("add_category")}
                   </Button>
-                </div>
+                </header>
 
-                <div className="space-y-2">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {(categories ?? []).map((cat) => {
                     const count = (products ?? []).filter((p) => p.category === cat.slug).length;
                     return (
-                      <Card key={cat.id} className="surface-panel">
-                        <CardContent className="flex items-center justify-between gap-4 p-4">
-                          <div>
-                            <p className="font-medium">
-                              {lang === "ar" ? cat.name_ar : cat.name_en}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {cat.slug} · {count} {t("products_in_category")}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button size="icon" variant="ghost" onClick={() => openEditCategory(cat)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => void deleteCategoryMut.mutate(cat.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between gap-3 border border-white/10 bg-[#12100e] p-4 transition hover:border-primary/30"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-display text-base font-semibold tracking-wide">
+                            {lang === "ar" ? cat.name_ar : cat.name_en}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {cat.slug} · {count} {t("products_in_category")}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => openEditCategory(cat)}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => void deleteCategoryMut.mutate(cat.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -923,17 +1083,27 @@ function AdminPage() {
             )}
 
             {tab === "interest" && (
-              <div className="space-y-4">
-                <h1 className="font-display text-2xl font-bold">{t("admin_interest")}</h1>
-                <div className="mb-4 flex gap-4">
-                  <Badge variant="outline">
-                    {t("interest_views")}: {viewCount}
-                  </Badge>
-                  <Badge variant="outline">
-                    {t("interest_carts")}: {cartCount}
-                  </Badge>
+              <div className="mx-auto max-w-6xl space-y-6">
+                <header>
+                  <p className="text-[11px] tracking-[0.24em] text-primary uppercase">
+                    {t("admin_panel")}
+                  </p>
+                  <h1 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                    {t("admin_interest")}
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("admin_interest_sub")}</p>
+                </header>
+                <div className="flex flex-wrap gap-3">
+                  <div className="border border-white/10 bg-[#12100e] px-4 py-3 text-sm">
+                    <span className="text-muted-foreground">{t("interest_views")}: </span>
+                    <span className="font-semibold text-primary">{viewCount}</span>
+                  </div>
+                  <div className="border border-white/10 bg-[#12100e] px-4 py-3 text-sm">
+                    <span className="text-muted-foreground">{t("interest_carts")}: </span>
+                    <span className="font-semibold text-primary">{cartCount}</span>
+                  </div>
                 </div>
-                <div className="surface-panel overflow-hidden rounded-xl">
+                <div className="overflow-hidden border border-white/10 bg-[#12100e]">
                   <Table>
                     <TableHeader>
                       <TableRow>
