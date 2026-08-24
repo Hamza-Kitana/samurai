@@ -905,7 +905,7 @@ export function createOrder(
     id: orderId,
     user_id: userId,
     total: items.reduce((s, i) => s + Number(i.price), 0),
-    status: "paid",
+    status: "pending",
     created_at: new Date().toISOString(),
     order_items: items.map((item) => {
       const product = products.find((p) => p.id === item.id);
@@ -932,6 +932,35 @@ export function createOrder(
   return orderId;
 }
 
+function isUnlockedStatus(status: string) {
+  return status === "approved" || status === "paid";
+}
+
+export function approveOrder(orderId: string): Order {
+  ensureSeed();
+  const all = getAllOrders();
+  const existing = all.find((o) => o.id === orderId);
+  if (!existing) throw new Error("Order not found");
+  if (isUnlockedStatus(existing.status)) return existing;
+
+  const approved: Order = { ...existing, status: "approved" };
+
+  const global = read<Order[]>(KEYS.orders, []);
+  const gIdx = global.findIndex((o) => o.id === orderId);
+  if (gIdx >= 0) global[gIdx] = approved;
+  else global.unshift(approved);
+  write(KEYS.orders, global);
+
+  const userKey = userOrdersKey(approved.user_id);
+  const userOrders = read<Order[]>(userKey, []);
+  const uIdx = userOrders.findIndex((o) => o.id === orderId);
+  if (uIdx >= 0) userOrders[uIdx] = approved;
+  else userOrders.unshift(approved);
+  write(userKey, userOrders);
+
+  return approved;
+}
+
 export function getUserOrders(userId: string): Order[] {
   ensureSeed();
   return mergeOrders([
@@ -951,7 +980,7 @@ export function getAllOrders(): Order[] {
 
 export function getUserDownloads(userId: string): ProductFile[] {
   ensureSeed();
-  const orders = getUserOrders(userId).filter((o) => o.status === "paid");
+  const orders = getUserOrders(userId).filter((o) => isUnlockedStatus(o.status));
   const productIds = new Set(
     orders.flatMap((o) => o.order_items.map((i) => i.product_id)),
   );

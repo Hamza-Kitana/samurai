@@ -14,6 +14,7 @@ import {
   Star,
   Users,
   Wallet,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -48,7 +49,7 @@ import {
 } from "@/components/ui/table";
 import { useLang } from "@/lib/i18n";
 import { useAuth, money, type Product } from "@/lib/store";
-import { fetchAdminOrders, fetchAdminInterest } from "@/lib/checkout";
+import { approveOrder, fetchAdminOrders, fetchAdminInterest } from "@/lib/checkout";
 import { getProductFileMeta, getUserById, type Order } from "@/lib/data";
 import {
   invalidateProducts,
@@ -368,6 +369,27 @@ function AdminPage() {
       toast.error(err instanceof Error ? err.message : t("category_in_use")),
   });
 
+  const approveOrderMut = useMutation({
+    mutationFn: async (orderId: string) => approveOrder(orderId),
+    onSuccess: (order) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["orders", order.user_id] });
+      void queryClient.invalidateQueries({ queryKey: ["downloads", order.user_id] });
+      setSelectedOrder((prev) => (prev?.id === order.id ? order : prev));
+      toast.success(t("approve_success"));
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Error"),
+  });
+
+  const orderStatusLabel = (status: string) => {
+    if (status === "pending") return t("status_pending");
+    if (status === "approved") return t("status_approved");
+    if (status === "paid") return t("status_paid");
+    return status;
+  };
+
+  const isOrderUnlocked = (status: string) => status === "approved" || status === "paid";
+
   const openEdit = (product: Product) => {
     setEditing(product);
     const meta = getProductFileMeta(product.id);
@@ -427,7 +449,9 @@ function AdminPage() {
 
   if (loading || !isAdmin) return <LoadingScreen />;
 
-  const totalRevenue = (orders ?? []).reduce((s, o) => s + Number(o.total), 0);
+  const totalRevenue = (orders ?? [])
+    .filter((o) => o.status === "approved" || o.status === "paid")
+    .reduce((s, o) => s + Number(o.total), 0);
   const uniqueCustomers = new Set((orders ?? []).map((o) => o.user_id)).size;
   const viewCount = (interest ?? []).filter((i) => i.kind === "view").length;
   const cartCount = (interest ?? []).filter((i) => i.kind === "cart").length;
@@ -672,9 +696,15 @@ function AdminPage() {
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">{t("admin_orders_sub")}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {(orders ?? []).length} {t("orders_count")}
-                  </p>
+                  <div className="text-end text-sm text-muted-foreground">
+                    <p>
+                      {(orders ?? []).filter((o) => o.status === "pending").length}{" "}
+                      {t("status_pending")}
+                    </p>
+                    <p>
+                      {(orders ?? []).length} {t("orders_count")}
+                    </p>
+                  </div>
                 </header>
                 <div className="overflow-hidden border border-white/10 bg-[#12100e]">
                   <Table>
@@ -685,19 +715,30 @@ function AdminPage() {
                         <TableHead>{t("items")}</TableHead>
                         <TableHead>{t("total")}</TableHead>
                         <TableHead>{t("date")}</TableHead>
-                        <TableHead className="w-24" />
+                        <TableHead>{t("status")}</TableHead>
+                        <TableHead className="w-40" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {(orders ?? []).length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                          <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                             {t("no_orders")}
                           </TableCell>
                         </TableRow>
                       ) : (
-                        (orders ?? []).map((order) => {
+                        [...(orders ?? [])]
+                          .sort((a, b) => {
+                            const ap = a.status === "pending" ? 0 : 1;
+                            const bp = b.status === "pending" ? 0 : 1;
+                            if (ap !== bp) return ap - bp;
+                            return (
+                              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                            );
+                          })
+                          .map((order) => {
                           const customer = getUserById(order.user_id);
+                          const pending = order.status === "pending";
                           return (
                             <TableRow
                               key={order.id}
@@ -720,7 +761,9 @@ function AdminPage() {
                                 </div>
                               </TableCell>
                               <TableCell>{(order.order_items ?? []).length}</TableCell>
-                              <TableCell className="font-bold">{money(order.total)}</TableCell>
+                              <TableCell className="font-bold text-primary">
+                                {money(order.total)}
+                              </TableCell>
                               <TableCell className="text-xs text-muted-foreground">
                                 {new Date(order.created_at).toLocaleDateString(
                                   lang === "ar" ? "ar" : "en",
@@ -728,18 +771,46 @@ function AdminPage() {
                                 )}
                               </TableCell>
                               <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="gap-1 text-xs"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedOrder(order);
-                                  }}
+                                <span
+                                  className={cn(
+                                    "inline-flex px-2 py-1 text-[10px] tracking-wide uppercase",
+                                    pending
+                                      ? "border border-amber-400/30 bg-amber-400/10 text-amber-200"
+                                      : "border border-emerald-400/25 bg-emerald-400/10 text-emerald-200",
+                                  )}
                                 >
-                                  <Eye className="h-3.5 w-3.5" />
-                                  {t("order_view")}
-                                </Button>
+                                  {orderStatusLabel(order.status)}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  {pending && (
+                                    <Button
+                                      size="sm"
+                                      className="gap-1 text-xs font-semibold"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        void approveOrderMut.mutate(order.id);
+                                      }}
+                                      disabled={approveOrderMut.isPending}
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                      {t("approve_order")}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="gap-1 text-xs"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    <Eye className="h-3.5 w-3.5" />
+                                    {t("order_view")}
+                                  </Button>
+                                </div>
                               </TableCell>
                             </TableRow>
                           );
@@ -796,10 +867,18 @@ function AdminPage() {
                             </div>
                             <div>
                               <p className="text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
-                                {t("status_paid")}
+                                {orderStatusLabel(selectedOrder.status)}
                               </p>
                               <div className="mt-1 flex items-center gap-2">
-                                <Badge>{selectedOrder.status}</Badge>
+                                <Badge
+                                  className={cn(
+                                    selectedOrder.status === "pending"
+                                      ? "border-amber-400/30 bg-amber-400/10 text-amber-100"
+                                      : "border-emerald-400/25 bg-emerald-400/10 text-emerald-100",
+                                  )}
+                                >
+                                  {orderStatusLabel(selectedOrder.status)}
+                                </Badge>
                                 <span className="font-display text-lg font-semibold text-gold-gradient">
                                   {money(selectedOrder.total)}
                                 </span>
@@ -853,10 +932,20 @@ function AdminPage() {
                       );
                     })()}
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2 sm:justify-between">
                       <Button variant="outline" onClick={() => setSelectedOrder(null)}>
                         {t("cancel")}
                       </Button>
+                      {!isOrderUnlocked(selectedOrder.status) && (
+                        <Button
+                          className="gap-2 font-semibold"
+                          onClick={() => void approveOrderMut.mutate(selectedOrder.id)}
+                          disabled={approveOrderMut.isPending}
+                        >
+                          <Check className="h-4 w-4" />
+                          {t("approve_order")}
+                        </Button>
+                      )}
                     </DialogFooter>
                   </>
                 )}

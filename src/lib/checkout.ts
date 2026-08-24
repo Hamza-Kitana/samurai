@@ -1,4 +1,5 @@
 import {
+  approveOrder as localApproveOrder,
   createOrder,
   getAllOrders,
   getInterest,
@@ -18,6 +19,11 @@ export async function checkout(items: CartItem[], userId: string) {
       price: i.price,
     })),
   );
+}
+
+export async function approveOrder(orderId: string) {
+  await delay();
+  return localApproveOrder(orderId);
 }
 
 export async function fetchUserOrders(userId: string) {

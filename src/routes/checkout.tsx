@@ -166,7 +166,7 @@ function CheckoutPage() {
                 onClick={() => void handlePay()}
                 disabled={paying}
               >
-                {paying ? t("loading") : t("pay_now")}
+                {paying ? t("loading") : t("place_order")}
               </Button>
 
               <Button variant="outline" className="mt-3 w-full border-white/15" asChild>

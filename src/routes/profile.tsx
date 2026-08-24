@@ -8,6 +8,8 @@ import {
   Sparkles,
   ShieldCheck,
   ArrowUpRight,
+  Clock3,
+  MessageCircle,
 } from "lucide-react";
 import { PageLayout, pageGutter, navPull } from "@/components/layout/PageLayout";
 import { ProductImage } from "@/components/store/ProductImage";
@@ -67,7 +69,10 @@ function ProfilePage() {
   }
 
   const downloadCount = downloads?.length ?? 0;
-  const totalSpent = (orders ?? []).reduce((sum, order) => sum + Number(order.total), 0);
+  const pendingOrders = (orders ?? []).filter((o) => o.status === "pending");
+  const totalSpent = (orders ?? [])
+    .filter((o) => o.status === "approved" || o.status === "paid")
+    .reduce((sum, order) => sum + Number(order.total), 0);
   const displayName =
     user.displayName?.trim() || user.email.split("@")[0] || "User";
   const initial = displayName.charAt(0).toUpperCase();
@@ -241,7 +246,66 @@ function ProfilePage() {
           </div>
 
           {tab === "downloads" && (
-            <div>
+            <div className="space-y-8">
+              {pendingOrders.length > 0 && (
+                <div className="border border-primary/30 bg-gradient-to-l from-primary/10 via-[#12100e] to-[#12100e] p-5 sm:p-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-primary/35 bg-primary/10">
+                        <Clock3 className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] tracking-[0.2em] text-primary uppercase">
+                          {t("pending_orders_title")}
+                        </p>
+                        <h2 className="mt-1 font-display text-xl font-semibold tracking-wide">
+                          {t("profile_waiting_title")}
+                        </h2>
+                        <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                          {t("profile_waiting_sub")}
+                        </p>
+                      </div>
+                    </div>
+                    <Button asChild className="gap-2 shrink-0 font-semibold">
+                      <Link to="/contact">
+                        <MessageCircle className="h-4 w-4" />
+                        {t("contact_admin")}
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <ul className="mt-5 divide-y divide-white/8 border border-white/10 bg-black/20">
+                    {pendingOrders.map((order) => (
+                      <li
+                        key={order.id}
+                        className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            {t("order")} #{order.id.slice(0, 8)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {(order.order_items ?? []).length} {t("items")} ·{" "}
+                            {new Date(order.created_at).toLocaleDateString(
+                              lang === "ar" ? "ar" : "en",
+                              { year: "numeric", month: "short", day: "numeric" },
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-[10px] tracking-wide text-amber-200 uppercase">
+                            {t("status_pending")}
+                          </span>
+                          <span className="font-display font-semibold text-gold-gradient">
+                            {money(order.total)}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {downloadsLoading ? (
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {Array.from({ length: 3 }).map((_, i) => (
@@ -249,11 +313,23 @@ function ProfilePage() {
                   ))}
                 </div>
               ) : (downloads ?? []).length === 0 ? (
-                <EmptyState
-                  title={t("profile_empty_title")}
-                  sub={t("profile_empty_sub")}
-                  cta={t("hero_cta")}
-                />
+                pendingOrders.length === 0 ? (
+                  <EmptyState
+                    title={t("profile_empty_title")}
+                    sub={t("profile_empty_sub")}
+                    cta={t("hero_cta")}
+                  />
+                ) : (
+                  <div className="border border-dashed border-white/15 bg-[#12100e] px-6 py-14 text-center">
+                    <Package className="mx-auto h-8 w-8 text-primary/45" />
+                    <p className="mt-4 font-display text-lg font-semibold">
+                      {t("profile_empty_title")}
+                    </p>
+                    <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                      {t("pending_orders_body")}
+                    </p>
+                  </div>
+                )
               ) : (
                 <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   {(downloads ?? []).map((file) => {
