@@ -19,6 +19,7 @@ export function ProductGallery({
   autoPlayMs = 4500,
 }: ProductGalleryProps) {
   const slides = images.filter(Boolean);
+  const slidesKey = slides.join("|");
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -35,7 +36,7 @@ export function ProductGallery({
 
   useEffect(() => {
     setIndex(0);
-  }, [slides.join("|")]);
+  }, [slidesKey]);
 
   useEffect(() => {
     if (count <= 1 || paused) return;
