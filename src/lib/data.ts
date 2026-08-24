@@ -72,11 +72,18 @@ const KEYS = {
 
 const DATA_VERSION = "6";
 
+export type Subcategory = {
+  slug: string;
+  name_ar: string;
+  name_en: string;
+};
+
 export type Category = {
   id: string;
   slug: string;
   name_ar: string;
   name_en: string;
+  subcategories: Subcategory[];
 };
 
 export type Product = {
@@ -89,6 +96,7 @@ export type Product = {
   description_ar: string | null;
   description_en: string | null;
   category: string;
+  subcategory: string;
   price: number;
   image_url: string | null;
   images: string[];
@@ -219,6 +227,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "A professional MLO with a fully detailed interior, realistic lighting and high performance for large roleplay servers.",
     category: "maps",
+    subcategory: "gangs",
     price: 49,
     image_url: "/images/p-casino.png",
     features_ar: [
@@ -259,6 +268,7 @@ const SEED_PRODUCTS: Product[] = [
     description_ar: "ماب دوجو ياباني مع ساحة تدريب، أشجار ساكورا متحركة، ومؤثرات صوتية محيطة.",
     description_en: "Japanese dojo with a training yard, animated sakura trees and ambient audio.",
     category: "maps",
+    subcategory: "gangs",
     price: 39,
     image_url: "/images/p-dojo.png",
     features_ar: ["أشجار ساكورا متحركة", "مؤثرات صوتية محيطة", "مناسب لعصابات الرول بلاي"],
@@ -289,6 +299,7 @@ const SEED_PRODUCTS: Product[] = [
     description_ar: "كراج تعديل بمساحات واسعة، رافعات متحركة، ونظام إضاءة نيون قابل للتخصيص.",
     description_en: "A spacious tuning garage with animated lifts and customizable neon lighting.",
     category: "maps",
+    subcategory: "interiors",
     price: 34,
     image_url: "/images/p-garage.png",
     features_ar: ["رافعات متحركة", "نيون قابل للتخصيص", "يدعم أنظمة التعديل الشهيرة"],
@@ -321,6 +332,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "Full heist script supporting ESX and QBCore with multi-stage missions, dynamic police alerts and rewards.",
     category: "scripts",
+    subcategory: "jobs",
     price: 59,
     image_url: "/images/p-heist.png",
     features_ar: [
@@ -358,6 +370,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "A lightweight HUD with a modern Japanese design showing health, armor, hunger and thirst with smooth animations.",
     category: "scripts",
+    subcategory: "ui",
     price: 19,
     image_url: "/images/p-hud.png",
     features_ar: ["استهلاك موارد منخفض", "قابل للتخصيص بالكامل", "أنيميشن ناعم"],
@@ -390,6 +403,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "Advanced protection that detects known tools, logs attempts and sends instant Discord alerts.",
     category: "scripts",
+    subcategory: "security",
     price: 45,
     image_url: "/images/p-anticheat.png",
     features_ar: ["كشف فوري", "سجلات ديسكورد", "تحديث مستمر"],
@@ -421,6 +435,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "Exclusive EUP clothing pack for male and female peds with a modern Japanese design.",
     category: "clothing",
+    subcategory: "packs",
     price: 29,
     image_url: "/images/p-outfit.png",
     features_ar: ["60 قطعة", "للرجال والنساء", "جودة 4K"],
@@ -452,6 +467,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "A modern streetwear collection with hoodies, jackets and sneakers in high quality.",
     category: "clothing",
+    subcategory: "packs",
     price: 24,
     image_url: "/images/p-street.png",
     features_ar: ["هوديز وجاكيتات", "أحذية حصرية", "تركيب سهل"],
@@ -484,6 +500,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "Japanese car pack with full interiors, real engine sounds and complete tuning support.",
     category: "vehicles",
+    subcategory: "sports",
     price: 54,
     image_url: "/images/p-jdm.png",
     features_ar: ["10 سيارات", "أصوات محركات حقيقية", "دعم كامل للتعديل"],
@@ -514,6 +531,7 @@ const SEED_PRODUCTS: Product[] = [
     description_ar: "أسطول سيارات شرطة مع إضاءة ELS، ستيكرات قابلة للتخصيص، وتفاصيل داخلية كاملة.",
     description_en: "Police fleet with ELS lighting, customizable liveries and full interiors.",
     category: "vehicles",
+    subcategory: "emergency",
     price: 44,
     image_url: "/images/p-police.png",
     features_ar: ["إضاءة ELS", "ستيكرات قابلة للتخصيص", "تفاصيل داخلية"],
@@ -545,6 +563,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "Link players to their Discord account with automatic roles and rank-based permissions.",
     category: "scripts",
+    subcategory: "systems",
     price: 22,
     image_url: "/images/p-discord.png",
     features_ar: ["أدوار تلقائية", "صلاحيات حسب الرتبة", "إعداد سريع"],
@@ -576,6 +595,7 @@ const SEED_PRODUCTS: Product[] = [
     description_en:
       "A night market with glowing stalls, animated crowds and realistic rain ambience.",
     category: "maps",
+    subcategory: "civilian",
     price: 37,
     image_url: "/images/p-market.png",
     features_ar: ["أكشاك مضيئة", "حشود متحركة", "أجواء مطر"],
@@ -607,10 +627,53 @@ const SEED_ADMIN: LocalUser = {
 };
 
 const SEED_CATEGORIES: Category[] = [
-  { id: "c-maps", slug: "maps", name_ar: "مابات", name_en: "Maps" },
-  { id: "c-scripts", slug: "scripts", name_ar: "سكربتات", name_en: "Scripts" },
-  { id: "c-clothing", slug: "clothing", name_ar: "ملابس", name_en: "Clothing" },
-  { id: "c-vehicles", slug: "vehicles", name_ar: "سيارات", name_en: "Vehicles" },
+  {
+    id: "c-maps",
+    slug: "maps",
+    name_ar: "مابات",
+    name_en: "Maps",
+    subcategories: [
+      { slug: "gangs", name_ar: "عصابات", name_en: "Gangs" },
+      { slug: "interiors", name_ar: "داخليات", name_en: "Interiors" },
+      { slug: "jobs", name_ar: "وظائف", name_en: "Jobs" },
+      { slug: "civilian", name_ar: "مدني", name_en: "Civilian" },
+    ],
+  },
+  {
+    id: "c-scripts",
+    slug: "scripts",
+    name_ar: "سكربتات",
+    name_en: "Scripts",
+    subcategories: [
+      { slug: "jobs", name_ar: "وظائف", name_en: "Jobs" },
+      { slug: "ui", name_ar: "واجهات", name_en: "UI" },
+      { slug: "security", name_ar: "حماية", name_en: "Security" },
+      { slug: "systems", name_ar: "أنظمة", name_en: "Systems" },
+    ],
+  },
+  {
+    id: "c-clothing",
+    slug: "clothing",
+    name_ar: "ملابس",
+    name_en: "Clothing",
+    subcategories: [
+      { slug: "packs", name_ar: "باقات", name_en: "Packs" },
+      { slug: "male", name_ar: "رجالي", name_en: "Male" },
+      { slug: "female", name_ar: "نسائي", name_en: "Female" },
+    ],
+  },
+  {
+    id: "c-vehicles",
+    slug: "vehicles",
+    name_ar: "سيارات",
+    name_en: "Vehicles",
+    subcategories: [
+      { slug: "sports", name_ar: "رياضية", name_en: "Sports" },
+      { slug: "emergency", name_ar: "طوارئ", name_en: "Emergency" },
+      { slug: "luxury", name_ar: "فاخرة", name_en: "Luxury" },
+      { slug: "bikes", name_ar: "دراجات", name_en: "Bikes" },
+    ],
+  },
 ];
 
 export function ensureSeed() {
@@ -639,6 +702,7 @@ export function ensureSeed() {
     if (!hasKey(KEYS.categories)) {
       write(KEYS.categories, SEED_CATEGORIES);
     }
+    migrateCategoriesAndProducts();
 
     const users = read<LocalUser[]>(KEYS.users, []);
     if (!users.some((u) => u.email === "admin")) {
@@ -658,9 +722,35 @@ export function ensureSeed() {
   }
 }
 
+function normalizeCategory(raw: Category): Category {
+  const seed = SEED_CATEGORIES.find((c) => c.id === raw.id || c.slug === raw.slug);
+  const subcategories =
+    raw.subcategories && raw.subcategories.length > 0
+      ? raw.subcategories
+      : (seed?.subcategories ?? []);
+  return { ...raw, subcategories };
+}
+
+function migrateCategoriesAndProducts() {
+  const cats = read<Category[]>(KEYS.categories, SEED_CATEGORIES);
+  const normalizedCats = cats.map(normalizeCategory);
+  const catsChanged = JSON.stringify(cats) !== JSON.stringify(normalizedCats);
+  if (catsChanged) write(KEYS.categories, normalizedCats);
+
+  const products = read<Product[]>(KEYS.products, SEED_PRODUCTS);
+  let productsChanged = false;
+  const next = products.map((p) => {
+    if (p.subcategory) return p;
+    const seed = SEED_PRODUCTS.find((s) => s.id === p.id || s.slug === p.slug);
+    productsChanged = true;
+    return { ...p, subcategory: seed?.subcategory ?? "" };
+  });
+  if (productsChanged) write(KEYS.products, next);
+}
+
 export function getCategories(): Category[] {
   ensureSeed();
-  return read<Category[]>(KEYS.categories, SEED_CATEGORIES);
+  return read<Category[]>(KEYS.categories, SEED_CATEGORIES).map(normalizeCategory);
 }
 
 export function getCategoryBySlug(slug: string): Category | null {
@@ -671,6 +761,14 @@ export function categoryLabel(slug: string, lang: "ar" | "en"): string {
   const cat = getCategoryBySlug(slug);
   if (!cat) return slug;
   return lang === "ar" ? cat.name_ar : cat.name_en;
+}
+
+export function subcategoryLabel(categorySlug: string, subSlug: string, lang: "ar" | "en"): string {
+  if (!subSlug) return "";
+  const cat = getCategoryBySlug(categorySlug);
+  const sub = cat?.subcategories.find((s) => s.slug === subSlug);
+  if (!sub) return subSlug;
+  return lang === "ar" ? sub.name_ar : sub.name_en;
 }
 
 export function saveCategory(category: Category) {
@@ -730,7 +828,8 @@ function normalizeProduct(raw: Product): Product {
         ? seed.images
         : galleryFromUrl(raw.image_url ?? seed?.image_url);
   const image_url = raw.image_url ?? images[0] ?? null;
-  return { ...raw, images, image_url, install_ar, install_en };
+  const subcategory = raw.subcategory ?? seed?.subcategory ?? "";
+  return { ...raw, images, image_url, install_ar, install_en, subcategory };
 }
 
 export function getProducts(includeInactive = false): Product[] {

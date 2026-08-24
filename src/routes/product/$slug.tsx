@@ -76,10 +76,14 @@ function ProductPage() {
     openCart();
   };
 
-  const categoryLabel = (() => {
-    const cat = (categories ?? []).find((c) => c.slug === product.category);
-    return cat ? (lang === "ar" ? cat.name_ar : cat.name_en) : product.category;
-  })();
+  const cat = (categories ?? []).find((c) => c.slug === product.category);
+  const categoryLabel = cat ? (lang === "ar" ? cat.name_ar : cat.name_en) : product.category;
+  const subcategoryLabel = cat?.subcategories.find((s) => s.slug === product.subcategory);
+  const subLabel = subcategoryLabel
+    ? lang === "ar"
+      ? subcategoryLabel.name_ar
+      : subcategoryLabel.name_en
+    : "";
 
   return (
     <PageLayout fullWidth>
@@ -110,9 +114,12 @@ function ProductPage() {
             )}
           >
             <div>
-              <Badge variant="outline" className="mb-3">
-                {categoryLabel}
-              </Badge>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Badge variant="outline">{categoryLabel}</Badge>
+                {subLabel && (
+                  <Badge className="border-primary/30 bg-primary/15 text-primary">{subLabel}</Badge>
+                )}
+              </div>
               <h1 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{title}</h1>
               <p className="mt-4 text-3xl font-bold text-gold-gradient sm:text-4xl">
                 {money(product.price)}

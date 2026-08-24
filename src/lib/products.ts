@@ -12,6 +12,7 @@ import {
   upsertProductFileMeta,
   uid,
   type Category,
+  type Subcategory,
 } from "@/lib/data";
 import { deleteProductBlob, putProductBlob } from "@/lib/product-files-db";
 import type { Product } from "@/lib/store";
@@ -109,6 +110,17 @@ export async function upsertCategory(data: Omit<Category, "id"> & { id?: string 
   const nameAr = data.name_ar.trim();
   const nameEn = data.name_en.trim();
   const slugSource = data.slug.trim() || nameEn || nameAr;
+  const subcategories = (data.subcategories ?? [])
+    .map((s) => ({
+      slug: s.slug
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\u0600-\u06FF\s-]/g, "")
+        .replace(/\s+/g, "-"),
+      name_ar: s.name_ar.trim(),
+      name_en: s.name_en.trim() || s.name_ar.trim(),
+    }))
+    .filter((s) => s.slug && s.name_ar);
   const category: Category = {
     id: data.id ?? uid(),
     slug: slugSource
@@ -118,6 +130,7 @@ export async function upsertCategory(data: Omit<Category, "id"> & { id?: string 
       .replace(/\s+/g, "-"),
     name_ar: nameAr,
     name_en: nameEn || nameAr,
+    subcategories,
   };
   if (!category.slug || !category.name_ar) {
     throw new Error("Category name is required");
@@ -145,4 +158,4 @@ function delay(ms = 80) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export type { Category };
+export type { Category, Subcategory };

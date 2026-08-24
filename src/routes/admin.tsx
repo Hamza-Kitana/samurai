@@ -90,6 +90,7 @@ const emptyProduct = {
   description_ar: "",
   description_en: "",
   category: "maps",
+  subcategory: "",
   price: 0,
   images: [] as string[],
   file_name: "",
@@ -107,6 +108,7 @@ const emptyCategory = {
   slug: "",
   name_ar: "",
   name_en: "",
+  subcategories: [] as { slug: string; name_ar: string; name_en: string }[],
 };
 
 function AdminPage() {
@@ -281,6 +283,7 @@ function AdminPage() {
         description_ar: payload.description_ar || null,
         description_en: payload.description_en || null,
         category: payload.category,
+        subcategory: payload.subcategory,
         price: payload.price,
         image_url,
         images,
@@ -333,6 +336,7 @@ function AdminPage() {
         slug: payload.slug,
         name_ar: payload.name_ar,
         name_en: payload.name_en || payload.name_ar,
+        subcategories: payload.subcategories ?? [],
       };
       if (payload.id) data.id = payload.id;
       return upsertCategory(data);
@@ -396,6 +400,7 @@ function AdminPage() {
       description_ar: product.description_ar ?? "",
       description_en: product.description_en ?? "",
       category: product.category,
+      subcategory: product.subcategory ?? "",
       price: product.price,
       images: product.images?.length
         ? product.images
@@ -420,6 +425,7 @@ function AdminPage() {
     setForm({
       ...emptyProduct,
       category: categories?.[0]?.slug ?? "maps",
+      subcategory: categories?.[0]?.subcategories[0]?.slug ?? "",
     });
     setDialogOpen(true);
   };
@@ -436,6 +442,9 @@ function AdminPage() {
       slug: cat.slug,
       name_ar: cat.name_ar,
       name_en: cat.name_en,
+      subcategories: cat.subcategories?.length
+        ? cat.subcategories.map((s) => ({ ...s }))
+        : [],
     });
     setCategoryDialogOpen(true);
   };
@@ -1150,10 +1159,11 @@ function AdminPage() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {(categories ?? []).map((cat) => {
                     const count = (products ?? []).filter((p) => p.category === cat.slug).length;
+                    const subs = cat.subcategories ?? [];
                     return (
                       <div
                         key={cat.id}
-                        className="flex items-center justify-between gap-3 border border-white/10 bg-[#12100e] p-4 transition hover:border-primary/30"
+                        className="flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-[#12100e] p-4 transition hover:border-primary/30"
                       >
                         <div className="min-w-0">
                           <p className="truncate font-display text-base font-semibold tracking-wide">
@@ -1162,6 +1172,18 @@ function AdminPage() {
                           <p className="mt-1 text-xs text-muted-foreground">
                             {cat.slug} · {count} {t("products_in_category")}
                           </p>
+                          {subs.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              {subs.map((s) => (
+                                <span
+                                  key={s.slug}
+                                  className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] tracking-wide text-white/70"
+                                >
+                                  {lang === "ar" ? s.name_ar : s.name_en}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           <Button
@@ -1321,7 +1343,11 @@ function AdminPage() {
                 </div>
                 <Select
                   value={form.category}
-                  onValueChange={(v) => setForm({ ...form, category: v })}
+                  onValueChange={(v) => {
+                    const next = (categories ?? []).find((c) => c.slug === v);
+                    const firstSub = next?.subcategories[0]?.slug ?? "";
+                    setForm({ ...form, category: v, subcategory: firstSub });
+                  }}
                 >
                   <SelectTrigger className="h-10 border-white/12 bg-white/[0.03]">
                     <SelectValue />
@@ -1335,6 +1361,32 @@ function AdminPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {((categories ?? []).find((c) => c.slug === form.category)?.subcategories.length ??
+                0) > 0 && (
+                <div className="space-y-2">
+                  <Label>{t("subcategory")}</Label>
+                  <Select
+                    value={form.subcategory || "none"}
+                    onValueChange={(v) =>
+                      setForm({ ...form, subcategory: v === "none" ? "" : v })
+                    }
+                  >
+                    <SelectTrigger className="h-10 border-white/12 bg-white/[0.03]">
+                      <SelectValue placeholder={t("subcategory")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("all_in_section")}</SelectItem>
+                      {(categories ?? [])
+                        .find((c) => c.slug === form.category)
+                        ?.subcategories.map((s) => (
+                          <SelectItem key={s.slug} value={s.slug}>
+                            {lang === "ar" ? s.name_ar : s.name_en}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>Title AR</Label>
                 <Input
@@ -1457,7 +1509,7 @@ function AdminPage() {
       </Dialog>
 
       <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+        <DialogContent className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
           <DialogHeader className="border-b border-white/8 px-6 py-6 pe-14 text-start">
             <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
               {t("admin_categories")}
@@ -1467,7 +1519,7 @@ function AdminPage() {
             </DialogTitle>
             <DialogDescription>{t("admin_categories_sub")}</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 px-6 py-5">
+          <div className="grid min-h-0 gap-4 overflow-y-auto px-6 py-5">
             <div className="space-y-1.5">
               <Label>{t("category_name_ar")}</Label>
               <Input
@@ -1508,6 +1560,111 @@ function AdminPage() {
                 className="border-white/12 bg-white/[0.03]"
               />
               <p className="text-[11px] text-muted-foreground">{t("category_slug_hint")}</p>
+            </div>
+
+            <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-medium">{t("subcategories")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("subcategory_hint")}</p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1 border-white/15"
+                  onClick={() =>
+                    setCategoryForm((prev) => ({
+                      ...prev,
+                      subcategories: [
+                        ...prev.subcategories,
+                        { slug: "", name_ar: "", name_en: "" },
+                      ],
+                    }))
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("add_subcategory")}
+                </Button>
+              </div>
+
+              {categoryForm.subcategories.length === 0 && (
+                <p className="text-xs text-muted-foreground">{t("subcategory_hint")}</p>
+              )}
+
+              <div className="space-y-2">
+                {categoryForm.subcategories.map((sub, index) => (
+                  <div
+                    key={`${index}-${sub.slug || "new"}`}
+                    className="grid gap-2 rounded-xl border border-white/8 bg-black/20 p-2.5 sm:grid-cols-[1fr_1fr_auto]"
+                  >
+                    <Input
+                      value={sub.name_ar}
+                      placeholder={t("subcategory_name_ar")}
+                      className="h-9 border-white/12 bg-white/[0.03]"
+                      onChange={(e) => {
+                        const name_ar = e.target.value;
+                        setCategoryForm((prev) => {
+                          const next = [...prev.subcategories];
+                          const current = next[index];
+                          if (!current) return prev;
+                          next[index] = {
+                            ...current,
+                            name_ar,
+                            slug:
+                              current.slug ||
+                              name_ar
+                                .toLowerCase()
+                                .replace(/[^\w\u0600-\u06FF\s-]/g, "")
+                                .trim()
+                                .replace(/\s+/g, "-"),
+                          };
+                          return { ...prev, subcategories: next };
+                        });
+                      }}
+                    />
+                    <Input
+                      value={sub.name_en}
+                      placeholder={t("subcategory_name_en")}
+                      className="h-9 border-white/12 bg-white/[0.03]"
+                      onChange={(e) => {
+                        const name_en = e.target.value;
+                        setCategoryForm((prev) => {
+                          const next = [...prev.subcategories];
+                          const current = next[index];
+                          if (!current) return prev;
+                          next[index] = {
+                            ...current,
+                            name_en,
+                            slug:
+                              current.slug ||
+                              name_en
+                                .toLowerCase()
+                                .replace(/[^\w\s-]/g, "")
+                                .trim()
+                                .replace(/\s+/g, "-"),
+                          };
+                          return { ...prev, subcategories: next };
+                        });
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 justify-self-end"
+                      onClick={() =>
+                        setCategoryForm((prev) => ({
+                          ...prev,
+                          subcategories: prev.subcategories.filter((_, i) => i !== index),
+                        }))
+                      }
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter className="border-t border-white/8 px-6 py-4 sm:justify-between">

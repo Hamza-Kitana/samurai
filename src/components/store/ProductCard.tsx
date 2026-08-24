@@ -21,7 +21,16 @@ export function ProductCard({ product }: ProductCardProps) {
   const title = lang === "ar" ? product.title_ar : product.title_en;
   const short = lang === "ar" ? product.short_ar : product.short_en;
   const cat = (categories ?? []).find((c) => c.slug === product.category);
-  const categoryLabel = cat ? (lang === "ar" ? cat.name_ar : cat.name_en) : product.category;
+  const sub = cat?.subcategories.find((s) => s.slug === product.subcategory);
+  const categoryLabel = sub
+    ? lang === "ar"
+      ? sub.name_ar
+      : sub.name_en
+    : cat
+      ? lang === "ar"
+        ? cat.name_ar
+        : cat.name_en
+      : product.category;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
