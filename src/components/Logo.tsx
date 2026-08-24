@@ -34,7 +34,7 @@ export function Logo({ className, showText = true, size = "md", linked = true }:
             {t("brand")}
           </span>
           <span className="mt-1 block text-[10px] tracking-[0.28em] text-primary/80 uppercase">
-            FiveM
+            STORE
           </span>
         </div>
       )}
