@@ -252,7 +252,7 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: "p2",
     slug: "samurai-dojo",
-    title_ar: "دوجو كاتارو",
+    title_ar: "دوجو KATARO",
     title_en: "KATARO Dojo",
     short_ar: "ماب دوجو ياباني بأجواء ليلية",
     short_en: "Japanese dojo map with night ambience",
@@ -349,7 +349,7 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: "p5",
     slug: "hud-samurai",
-    title_ar: "واجهة HUD كاتارو",
+    title_ar: "واجهة HUD KATARO",
     title_en: "KATARO HUD",
     short_ar: "واجهة لاعب أنيقة وسريعة",
     short_en: "Sleek and fast player HUD",
@@ -413,7 +413,7 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: "p7",
     slug: "samurai-outfit-pack",
-    title_ar: "باقة ملابس كاتارو",
+    title_ar: "باقة ملابس KATARO",
     title_en: "KATARO Outfit Pack",
     short_ar: "60 قطعة ملابس حصرية",
     short_en: "60 exclusive clothing pieces",

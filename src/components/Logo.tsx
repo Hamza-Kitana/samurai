@@ -23,9 +23,9 @@ export function Logo({ className, showText = true, size = "md", linked = true }:
     <>
       <span className={cn("relative flex shrink-0 items-center justify-center", sizes[size])}>
         <img
-          src="/logo.png"
+          src="/logo.png?v=cut3"
           alt={t("brand")}
-          className="h-full w-full object-contain drop-shadow-[0_0_18px_rgba(225,29,46,0.35)] transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-contain mix-blend-screen transition-transform duration-500 group-hover:scale-105"
         />
       </span>
       {showText && (

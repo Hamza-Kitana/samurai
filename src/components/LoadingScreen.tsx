@@ -118,7 +118,7 @@ function BrandMark({ size }: { size: "md" | "lg" }) {
           dim,
         )}
       >
-        <img src="/logo.png" alt="" className="h-[90%] w-[90%] object-contain" />
+        <img src="/logo.png?v=cut3" alt="" className="h-[90%] w-[90%] object-contain" />
       </div>
     </div>
   );

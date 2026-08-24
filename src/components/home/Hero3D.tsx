@@ -14,9 +14,9 @@ export function Hero3D() {
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-5 pb-24 text-center">
         <div className="animate-hero-in flex max-w-5xl flex-col items-center">
           <img
-            src="/logo.png"
+            src="/logo.png?v=cut3"
             alt={t("brand")}
-            className="mb-8 h-28 w-auto object-contain drop-shadow-[0_0_48px_rgba(225,29,46,0.5)] sm:h-40"
+            className="mb-8 h-28 w-auto object-contain mix-blend-screen sm:h-40"
           />
 
           <div className="gold-line animate-line-grow mb-6 h-px w-24 sm:w-32" />

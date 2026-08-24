@@ -4,7 +4,7 @@ export type Lang = "ar" | "en";
 
 const dict = {
   ar: {
-    brand: "كاتارو",
+    brand: "KATARO",
     tagline: "متجر FiveM النخبة",
     nav_home: "الرئيسية",
     nav_store: "المتجر",
@@ -69,7 +69,7 @@ const dict = {
     order_pending: "بانتظار التفعيل",
     order_approved: "مفعّل",
     profile_title: "حسابي",
-    profile_welcome: "مرحباً بك في عالم كاتارو",
+    profile_welcome: "مرحباً بك في عالم KATARO",
     profile_member: "عضو مميز",
     profile_since: "عضو منذ",
     profile_library: "مكتبتك",
@@ -181,14 +181,14 @@ const dict = {
     chart_trend_title: "منحنى الإيرادات",
     chart_empty: "لا توجد بيانات كافية بعد",
     about_title: "من نحن",
-    about_sub: "متجر FiveM بروح كاتارو — قوة، سرعة، وثقة.",
+    about_sub: "متجر FiveM بروح KATARO — قوة، سرعة، وثقة.",
     about_story_kicker: "قصتنا",
     about_story_title: "نصنع محتوى يليق بالسيرفرات الكبيرة",
     about_story_body:
-      "كاتارو وُلدت من شغف بالرول بلاي والتصميم. نختار كل ماب وسكربت وقطعة بعناية، ونقدّم تركيباً سهلاً وتحميلاً بعد تفعيل الإدارة — بدون تعقيد.",
+      "KATARO وُلدت من شغف بالرول بلاي والتصميم. نختار كل ماب وسكربت وقطعة بعناية، ونقدّم تركيباً سهلاً وتحميلاً بعد تفعيل الإدارة — بدون تعقيد.",
     about_badge: "جودة نخبوية لسيرفرات النخبة",
     about_pillars_kicker: "قيمنا",
-    about_pillars_title: "لماذا يختارون كاتارو",
+    about_pillars_title: "لماذا يختارون KATARO",
     about_p1_title: "جودة فاخرة",
     about_p1_body: "تفاصيل عالية، أداء محسّن، وتصميم يليق بعوالم الرول بلاي الجادة.",
     about_p2_title: "تسليم فوري",

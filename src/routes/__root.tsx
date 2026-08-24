@@ -51,7 +51,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <img src="/logo.png" alt="" className="mx-auto mb-6 h-16 w-auto object-contain" />
+        <img src="/logo.png?v=cut3" alt="" className="mx-auto mb-6 h-16 w-auto object-contain" />
         <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
           تعذّر تحميل الصفحة
         </h1>
