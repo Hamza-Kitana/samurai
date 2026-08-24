@@ -216,7 +216,7 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
   };
 
   return (
-    <div className={cn("absolute inset-0 overflow-hidden bg-black", className)}>
+    <div className={cn("absolute inset-0 overflow-hidden bg-[#0a0809]", className)}>
       {/* Fallback poster while YT boots */}
       <img
         src="/images/hero-bg.png"
@@ -227,14 +227,28 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
         )}
       />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="yt-cover relative h-[56.25vw] min-h-full w-full min-w-[177.78vh]">
-          <div ref={hostRef} className="absolute inset-0 h-full w-full [&_iframe]:h-full [&_iframe]:w-full" />
+      {/* Scale + shift past YouTube's baked-in letterbox (bars at top and bottom of the file). */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{
+            top: "-30vh",
+            width: "max(100vw, 177.78vh)",
+            height: "max(100vh, 56.25vw)",
+            transform: "translateX(-50%) scale(2.05)",
+            transformOrigin: "center top",
+          }}
+        >
+          <div
+            ref={hostRef}
+            className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:!h-full [&_iframe]:!w-full [&_iframe]:!max-h-none [&_iframe]:!max-w-none [&_iframe]:border-0"
+          />
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,4,6,0.55)_0%,rgba(5,4,6,0.28)_35%,rgba(5,4,6,0.72)_78%,rgba(5,4,6,0.96)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_55%,rgba(225,29,46,0.18)_0%,transparent_55%)]" />
+      {/* Light vignette so text stays readable without fake black bars */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,4,6,0.18)_0%,rgba(5,4,6,0.05)_38%,rgba(5,4,6,0.18)_82%,rgba(5,4,6,0.32)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_55%,rgba(225,29,46,0.1)_0%,transparent_58%)]" />
 
       {needsGesture && (
         <button
