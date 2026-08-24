@@ -28,13 +28,15 @@ export function CartDrawer() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent
         side={dir === "rtl" ? "left" : "right"}
-        className="flex w-full flex-col gap-0 border-white/10 bg-[#0f0d0b] p-0 sm:max-w-md"
+        className="flex w-full flex-col gap-0 border-primary/20 bg-[#110e0b] p-0 sm:max-w-md"
       >
-        <SheetHeader className="border-b border-white/8 px-6 py-5 text-start">
-          <SheetTitle className="font-display text-xl font-semibold tracking-wide">
+        <SheetHeader className="relative border-b border-white/8 px-6 py-6 text-start">
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-l from-transparent via-primary to-transparent" />
+          <p className="text-[10px] tracking-[0.28em] text-primary uppercase">Samurai</p>
+          <SheetTitle className="mt-1 font-display text-2xl font-semibold tracking-wide">
             {t("cart_title")}
           </SheetTitle>
-          <SheetDescription className="text-xs tracking-wide text-muted-foreground uppercase">
+          <SheetDescription className="text-xs tracking-wide text-muted-foreground">
             {items.length} {t("cart_items")}
           </SheetDescription>
         </SheetHeader>

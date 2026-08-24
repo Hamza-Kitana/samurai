@@ -828,14 +828,17 @@ function AdminPage() {
                 if (!open) setSelectedOrder(null);
               }}
             >
-              <DialogContent className="max-h-[90vh] overflow-y-auto border-white/10 bg-[#12100e] sm:max-w-lg sm:rounded-none">
+              <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-lg">
                 {selectedOrder && (
                   <>
-                    <DialogHeader className="space-y-2 text-start sm:text-start">
-                      <DialogTitle className="font-display text-xl tracking-wide">
+                    <DialogHeader className="space-y-2 border-b border-white/8 px-6 py-6 pe-14 text-start">
+                      <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
+                        {t("admin_orders")}
+                      </p>
+                      <DialogTitle>
                         {t("order_details")} #{selectedOrder.id.slice(0, 8)}
                       </DialogTitle>
-                      <DialogDescription className="text-xs text-muted-foreground">
+                      <DialogDescription>
                         {new Date(selectedOrder.created_at).toLocaleString(
                           lang === "ar" ? "ar" : "en",
                           {
@@ -852,8 +855,8 @@ function AdminPage() {
                     {(() => {
                       const customer = getUserById(selectedOrder.user_id);
                       return (
-                        <div className="space-y-5">
-                          <div className="grid gap-3 border border-white/10 bg-[#0e0c0a] p-4 sm:grid-cols-2">
+                        <div className="max-h-[min(58vh,28rem)] space-y-5 overflow-y-auto px-6 py-5">
+                          <div className="grid gap-3 border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-2">
                             <div>
                               <p className="text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
                                 {t("customer")}
@@ -867,7 +870,7 @@ function AdminPage() {
                             </div>
                             <div>
                               <p className="text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
-                                {orderStatusLabel(selectedOrder.status)}
+                                {t("status")}
                               </p>
                               <div className="mt-1 flex items-center gap-2">
                                 <Badge
@@ -890,7 +893,7 @@ function AdminPage() {
                             <p className="mb-3 text-[11px] tracking-[0.18em] text-primary uppercase">
                               {t("checkout_items")}
                             </p>
-                            <ul className="divide-y divide-white/8 border border-white/10">
+                            <ul className="divide-y divide-white/8 overflow-hidden border border-white/10">
                               {(selectedOrder.order_items ?? []).map((item) => {
                                 const title =
                                   lang === "ar"
@@ -932,8 +935,8 @@ function AdminPage() {
                       );
                     })()}
 
-                    <DialogFooter className="gap-2 sm:justify-between">
-                      <Button variant="outline" onClick={() => setSelectedOrder(null)}>
+                    <DialogFooter className="border-t border-white/8 px-6 py-4 sm:justify-between">
+                      <Button variant="outline" className="border-white/15" onClick={() => setSelectedOrder(null)}>
                         {t("cancel")}
                       </Button>
                       {!isOrderUnlocked(selectedOrder.status) && (
@@ -1227,13 +1230,16 @@ function AdminPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="flex max-h-[92vh] w-[min(96vw,52rem)] flex-col gap-0 overflow-hidden border border-white/10 bg-[#12100e] p-0 sm:max-w-[52rem] sm:rounded-none [&>button]:end-3 [&>button]:top-3">
-          <DialogHeader className="shrink-0 border-b border-white/8 px-6 py-5 text-start sm:text-start">
-            <DialogTitle className="font-display text-xl tracking-wide">
+        <DialogContent className="flex max-h-[92vh] w-[min(96vw,52rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[52rem]">
+          <DialogHeader className="shrink-0 border-b border-white/8 px-6 py-6 pe-14 text-start">
+            <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
+              {t("admin_products")}
+            </p>
+            <DialogTitle className="mt-1">
               {editing ? t("edit") : t("add_product")}
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              {editing ? editing.slug : t("admin_products")}
+            <DialogDescription>
+              {editing ? editing.slug : t("admin_products_sub")}
             </DialogDescription>
           </DialogHeader>
 
@@ -1287,7 +1293,7 @@ function AdminPage() {
                 <Input
                   value={form.slug}
                   onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                  className="border-white/12 bg-transparent"
+                  className="h-10 border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1302,7 +1308,7 @@ function AdminPage() {
                   </button>
                 </div>
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                  <SelectTrigger className="border-white/12 bg-transparent">
+                  <SelectTrigger className="h-10 border-white/12 bg-white/[0.03]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1319,7 +1325,7 @@ function AdminPage() {
                 <Input
                   value={form.title_ar}
                   onChange={(e) => setForm({ ...form, title_ar: e.target.value })}
-                  className="border-white/12 bg-transparent"
+                  className="h-10 border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1327,7 +1333,7 @@ function AdminPage() {
                 <Input
                   value={form.title_en}
                   onChange={(e) => setForm({ ...form, title_en: e.target.value })}
-                  className="border-white/12 bg-transparent"
+                  className="h-10 border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1336,8 +1342,36 @@ function AdminPage() {
                   type="number"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                  className="border-white/12 bg-transparent"
+                  className="h-10 border-white/12 bg-white/[0.03]"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, is_featured: !form.is_featured })}
+                  className={cn(
+                    "border px-3 py-3 text-start text-sm transition",
+                    form.is_featured
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-white/12 bg-white/[0.02] text-muted-foreground hover:border-white/20",
+                  )}
+                >
+                  <span className="block text-[10px] tracking-[0.18em] uppercase">{t("featured")}</span>
+                  <span className="mt-1 block font-medium">{form.is_featured ? "On" : "Off"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                  className={cn(
+                    "border px-3 py-3 text-start text-sm transition",
+                    form.is_active
+                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
+                      : "border-white/12 bg-white/[0.02] text-muted-foreground hover:border-white/20",
+                  )}
+                >
+                  <span className="block text-[10px] tracking-[0.18em] uppercase">{t("active")}</span>
+                  <span className="mt-1 block font-medium">{form.is_active ? t("active") : t("inactive")}</span>
+                </button>
               </div>
             </section>
 
@@ -1348,7 +1382,7 @@ function AdminPage() {
                   value={form.features_ar}
                   onChange={(e) => setForm({ ...form, features_ar: e.target.value })}
                   rows={4}
-                  className="border-white/12 bg-transparent"
+                  className="min-h-[6.5rem] border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1357,7 +1391,7 @@ function AdminPage() {
                   value={form.features_en}
                   onChange={(e) => setForm({ ...form, features_en: e.target.value })}
                   rows={4}
-                  className="border-white/12 bg-transparent"
+                  className="min-h-[6.5rem] border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1366,7 +1400,7 @@ function AdminPage() {
                   value={form.install_ar}
                   onChange={(e) => setForm({ ...form, install_ar: e.target.value })}
                   rows={4}
-                  className="border-white/12 bg-transparent"
+                  className="min-h-[6.5rem] border-white/12 bg-white/[0.03]"
                 />
               </div>
               <div className="space-y-2">
@@ -1375,7 +1409,7 @@ function AdminPage() {
                   value={form.install_en}
                   onChange={(e) => setForm({ ...form, install_en: e.target.value })}
                   rows={4}
-                  className="border-white/12 bg-transparent"
+                  className="min-h-[6.5rem] border-white/12 bg-white/[0.03]"
                 />
               </div>
             </section>
@@ -1386,7 +1420,7 @@ function AdminPage() {
               {t("cancel")}
             </Button>
             <Button
-              className="font-semibold"
+              className="min-w-28 font-semibold"
               onClick={() =>
                 void saveProduct.mutate({ ...form, ...(editing ? { id: editing.id } : {}) })
               }
@@ -1398,20 +1432,27 @@ function AdminPage() {
       </Dialog>
 
       <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingCategory ? t("edit") : t("add_category")}</DialogTitle>
+        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+          <DialogHeader className="border-b border-white/8 px-6 py-6 pe-14 text-start">
+            <p className="text-[10px] tracking-[0.28em] text-primary uppercase">
+              {t("admin_categories")}
+            </p>
+            <DialogTitle className="mt-1">
+              {editingCategory ? t("edit") : t("add_category")}
+            </DialogTitle>
+            <DialogDescription>{t("admin_categories_sub")}</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3">
-            <div className="space-y-1">
+          <div className="grid gap-4 px-6 py-5">
+            <div className="space-y-1.5">
               <Label>{t("category_name_ar")}</Label>
               <Input
                 value={categoryForm.name_ar}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name_ar: e.target.value })}
                 placeholder="أسلحة"
+                className="border-white/12 bg-white/[0.03]"
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>{t("category_name_en")}</Label>
               <Input
                 value={categoryForm.name_en}
@@ -1430,23 +1471,26 @@ function AdminPage() {
                   }));
                 }}
                 placeholder="Weapons"
+                className="border-white/12 bg-white/[0.03]"
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>{t("category_slug")}</Label>
               <Input
                 value={categoryForm.slug}
                 onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
                 placeholder="weapons"
+                className="border-white/12 bg-white/[0.03]"
               />
               <p className="text-[11px] text-muted-foreground">{t("category_slug_hint")}</p>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>
+          <DialogFooter className="border-t border-white/8 px-6 py-4 sm:justify-between">
+            <Button variant="outline" className="border-white/15" onClick={() => setCategoryDialogOpen(false)}>
               {t("cancel")}
             </Button>
             <Button
+              className="min-w-28 font-semibold"
               onClick={() =>
                 void saveCategoryMut.mutate({
                   ...categoryForm,
