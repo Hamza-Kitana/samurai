@@ -125,7 +125,6 @@ export function ProductCard({ product }: ProductCardProps) {
         "[transform:perspective(1200px)_rotateX(var(--rx))_rotateY(var(--ry))]",
       )}
     >
-      {/* Soft glow under card */}
       <div
         aria-hidden
         className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_85%,rgba(225,29,46,0.32),transparent_62%)] opacity-40 blur-2xl transition-opacity duration-700 group-hover:opacity-100"
@@ -142,23 +141,29 @@ export function ProductCard({ product }: ProductCardProps) {
           "group-hover:shadow-[0_32px_70px_-18px_rgba(0,0,0,0.95),0_0_0_1px_rgba(225,29,46,0.28),0_0_56px_-14px_rgba(225,29,46,0.6)]",
         )}
       >
-        {/* Specular shine that follows cursor */}
+        {/* Stretched link under visuals; clicks pass through except the cart button */}
+        <Link
+          to="/product/$slug"
+          params={{ slug: product.slug }}
+          aria-label={title}
+          className="absolute inset-0 z-[1] rounded-[1.75rem]"
+        />
+
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 rounded-[1.75rem] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 z-[2] rounded-[1.75rem] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
           style={{
             background:
               "radial-gradient(520px circle at var(--mx) var(--my), rgba(255,255,255,0.14), transparent 42%)",
           }}
         />
 
-        {/* Top rim highlight */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-4 top-0 z-20 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent"
+          className="pointer-events-none absolute inset-x-4 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-white/35 to-transparent"
         />
 
-        <Link to="/product/$slug" params={{ slug: product.slug }} className="relative z-10 block">
+        <div className="pointer-events-none relative z-[3]">
           <div className="relative aspect-[16/11] overflow-hidden rounded-t-[1.75rem]">
             <ProductImage
               category={product.category}
@@ -201,7 +206,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 type="button"
                 onClick={handleAdd}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5",
+                  "pointer-events-auto relative z-20 inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5",
                   "text-xs font-semibold tracking-wide text-primary-foreground",
                   "shadow-[0_8px_24px_-10px_rgba(225,29,46,0.85)]",
                   "transition duration-500",
@@ -214,9 +219,8 @@ export function ProductCard({ product }: ProductCardProps) {
               </button>
             </div>
           </div>
-        </Link>
+        </div>
       </div>
     </article>
   );
 }
-
