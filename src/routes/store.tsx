@@ -213,13 +213,13 @@ function StorePage() {
           </div>
 
           {isLoading ? (
-            <div className="scene-3d grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {Array.from({ length: 10 }).map((_, i) => (
                 <Skeleton key={i} className="aspect-[4/5] rounded-[1.75rem]" />
               ))}
             </div>
           ) : (
-            <div className="scene-3d grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {displayed.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

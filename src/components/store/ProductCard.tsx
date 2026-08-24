@@ -1,4 +1,3 @@
-import { useEffect, useRef, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { ShoppingCart, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -17,10 +16,6 @@ export function ProductCard({ product }: ProductCardProps) {
   const { add, openCart } = useCart();
   const { user } = useAuth();
   const { data: categories } = useCategories();
-  const cardRef = useRef<HTMLElement>(null);
-  const targetRef = useRef({ rx: 0, ry: 0, mx: 50, my: 40 });
-  const currentRef = useRef({ rx: 0, ry: 0, mx: 50, my: 40 });
-  const rafRef = useRef(0);
   const title = lang === "ar" ? product.title_ar : product.title_en;
   const short = lang === "ar" ? product.short_ar : product.short_en;
   const cat = (categories ?? []).find((c) => c.slug === product.category);
@@ -34,41 +29,6 @@ export function ProductCard({ product }: ProductCardProps) {
         ? cat.name_ar
         : cat.name_en
       : product.category;
-
-  const applyTilt = () => {
-    const el = cardRef.current;
-    if (!el) return;
-    const cur = currentRef.current;
-    const tgt = targetRef.current;
-    const ease = 0.07;
-    cur.rx += (tgt.rx - cur.rx) * ease;
-    cur.ry += (tgt.ry - cur.ry) * ease;
-    cur.mx += (tgt.mx - cur.mx) * ease;
-    cur.my += (tgt.my - cur.my) * ease;
-    el.style.setProperty("--rx", `${cur.rx.toFixed(3)}deg`);
-    el.style.setProperty("--ry", `${cur.ry.toFixed(3)}deg`);
-    el.style.setProperty("--mx", `${cur.mx.toFixed(2)}%`);
-    el.style.setProperty("--my", `${cur.my.toFixed(2)}%`);
-
-    const stillMoving =
-      Math.abs(tgt.rx - cur.rx) > 0.02 ||
-      Math.abs(tgt.ry - cur.ry) > 0.02 ||
-      Math.abs(tgt.mx - cur.mx) > 0.15 ||
-      Math.abs(tgt.my - cur.my) > 0.15;
-    if (stillMoving) rafRef.current = requestAnimationFrame(applyTilt);
-    else rafRef.current = 0;
-  };
-
-  const startTilt = () => {
-    if (rafRef.current) return;
-    rafRef.current = requestAnimationFrame(applyTilt);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -86,43 +46,11 @@ export function ProductCard({ product }: ProductCardProps) {
     openCart();
   };
 
-  const onMove = (e: MouseEvent<HTMLElement>) => {
-    const el = cardRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    targetRef.current = {
-      rx: (0.5 - y) * 5.5,
-      ry: (x - 0.5) * 6.5,
-      mx: x * 100,
-      my: y * 100,
-    };
-    startTilt();
-  };
-
-  const onLeave = () => {
-    targetRef.current = { rx: 0, ry: 0, mx: 50, my: 40 };
-    startTilt();
-  };
-
   return (
     <article
-      ref={cardRef}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={
-        {
-          "--rx": "0deg",
-          "--ry": "0deg",
-          "--mx": "50%",
-          "--my": "40%",
-        } as CSSProperties
-      }
       className={cn(
-        "product-card-3d group relative isolate rounded-[1.75rem]",
-        "will-change-transform",
-        "[transform:perspective(1200px)_rotateX(var(--rx))_rotateY(var(--ry))]",
+        "group relative rounded-[1.75rem]",
+        "transition-transform duration-500 ease-out hover:-translate-y-1",
       )}
     >
       <div
@@ -135,41 +63,23 @@ export function ProductCard({ product }: ProductCardProps) {
           "relative overflow-hidden rounded-[1.75rem] border border-white/12",
           "bg-gradient-to-b from-[#1f1a17] via-[#14110f] to-[#090807]",
           "shadow-[0_22px_50px_-22px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.08)]",
-          "transition-[transform,box-shadow,border-color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          "group-hover:-translate-y-1",
+          "transition-[box-shadow,border-color] duration-500",
           "group-hover:border-primary/50",
           "group-hover:shadow-[0_32px_70px_-18px_rgba(0,0,0,0.95),0_0_0_1px_rgba(225,29,46,0.28),0_0_56px_-14px_rgba(225,29,46,0.6)]",
         )}
       >
-        {/* Stretched link under visuals; clicks pass through except the cart button */}
-        <Link
-          to="/product/$slug"
-          params={{ slug: product.slug }}
-          aria-label={title}
-          className="absolute inset-0 z-[1] rounded-[1.75rem]"
-        />
-
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-[2] rounded-[1.75rem] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
-          style={{
-            background:
-              "radial-gradient(520px circle at var(--mx) var(--my), rgba(255,255,255,0.14), transparent 42%)",
-          }}
+          className="pointer-events-none absolute inset-x-4 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent"
         />
 
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-4 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-white/35 to-transparent"
-        />
-
-        <div className="pointer-events-none relative z-[3]">
+        <Link to="/product/$slug" params={{ slug: product.slug }} className="block">
           <div className="relative aspect-[16/11] overflow-hidden rounded-t-[1.75rem]">
             <ProductImage
               category={product.category}
               title={title}
               imageUrl={product.image_url}
-              className="transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+              className="transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0908] via-[#0a0908]/35 to-transparent" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(225,29,46,0.18),transparent_55%)] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
@@ -186,38 +96,38 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <div className="relative space-y-4 p-5">
-            <div>
-              <h3 className="font-display text-[1.05rem] font-semibold leading-snug tracking-wide text-foreground transition-colors duration-500 group-hover:text-primary">
-                {title}
-              </h3>
-              {short && (
-                <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
-                  {short}
-                </p>
-              )}
-            </div>
+          <div className="space-y-3 p-5 pb-3">
+            <h3 className="font-display text-[1.05rem] font-semibold leading-snug tracking-wide text-foreground transition-colors duration-500 group-hover:text-primary">
+              {title}
+            </h3>
+            {short && (
+              <p className="line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+                {short}
+              </p>
+            )}
+          </div>
+        </Link>
 
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5 pe-2.5 ps-3.5 backdrop-blur-sm">
-              <span className="font-display text-xl font-semibold tracking-wide text-gold-gradient">
-                {money(product.price)}
-              </span>
-              <button
-                type="button"
-                onClick={handleAdd}
-                className={cn(
-                  "pointer-events-auto relative z-20 inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5",
-                  "text-xs font-semibold tracking-wide text-primary-foreground",
-                  "shadow-[0_8px_24px_-10px_rgba(225,29,46,0.85)]",
-                  "transition duration-500",
-                  "hover:bg-[#ff2a3d] hover:shadow-[0_12px_28px_-8px_rgba(225,29,46,0.95)]",
-                  "active:scale-[0.97]",
-                )}
-              >
-                <ShoppingCart className="h-3.5 w-3.5" />
-                {t("add_to_cart")}
-              </button>
-            </div>
+        <div className="relative z-10 px-5 pb-5">
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5 pe-2.5 ps-3.5 backdrop-blur-sm">
+            <span className="font-display text-xl font-semibold tracking-wide text-gold-gradient">
+              {money(product.price)}
+            </span>
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5",
+                "text-xs font-semibold tracking-wide text-primary-foreground",
+                "shadow-[0_8px_24px_-10px_rgba(225,29,46,0.85)]",
+                "transition duration-300",
+                "hover:bg-[#ff2a3d] hover:shadow-[0_12px_28px_-8px_rgba(225,29,46,0.95)]",
+                "active:scale-[0.97]",
+              )}
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              {t("add_to_cart")}
+            </button>
           </div>
         </div>
       </div>
