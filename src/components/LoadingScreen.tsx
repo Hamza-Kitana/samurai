@@ -95,31 +95,20 @@ export function LoadingScreen({ compact = false, className, progress, label }: L
 }
 
 function BrandMark({ size }: { size: "md" | "lg" }) {
-  const dim = size === "lg" ? "h-28 w-40 sm:h-32 sm:w-48" : "h-16 w-24";
+  const dim = size === "lg" ? "h-32 w-32 sm:h-40 sm:w-40" : "h-20 w-20";
+  const ring = size === "lg" ? "h-44 w-44 sm:h-52 sm:w-52" : "h-28 w-28";
   return (
     <div className="relative flex items-center justify-center">
+      <div className={cn("absolute rounded-full border border-primary/20", ring)} />
       <div
-        className={cn(
-          "absolute rounded-full border border-primary/25",
-          size === "lg" ? "h-40 w-40 sm:h-44 sm:w-44" : "h-24 w-24",
-        )}
-      />
-      <div
-        className={cn(
-          "absolute rounded-full border border-transparent border-t-primary/80 border-r-primary/25",
-          size === "lg" ? "h-40 w-40 sm:h-44 sm:w-44" : "h-24 w-24",
-        )}
+        className={cn("absolute rounded-full border border-transparent border-t-primary/80 border-r-primary/20", ring)}
         style={{ animation: "spin-ring 1.4s linear infinite" }}
       />
-      <div
-        className={cn(
-          "relative flex items-center justify-center overflow-hidden",
-          "bg-black/40 ring-1 ring-primary/35 shadow-[0_0_48px_-10px_rgba(225,29,46,0.65)]",
-          dim,
-        )}
-      >
-        <img src="/logo.png?v=cut3" alt="" className="h-[90%] w-[90%] object-contain" />
-      </div>
+      <img
+        src="/logo.png?v=cut3"
+        alt=""
+        className={cn("relative z-10 object-contain mix-blend-screen drop-shadow-[0_0_28px_rgba(225,29,46,0.45)]", dim)}
+      />
     </div>
   );
 }
