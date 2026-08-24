@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useRef, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { ShoppingCart, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +18,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const { user } = useAuth();
   const { data: categories } = useCategories();
   const cardRef = useRef<HTMLElement>(null);
+  const targetRef = useRef({ rx: 0, ry: 0, mx: 50, my: 40 });
+  const currentRef = useRef({ rx: 0, ry: 0, mx: 50, my: 40 });
+  const rafRef = useRef(0);
   const title = lang === "ar" ? product.title_ar : product.title_en;
   const short = lang === "ar" ? product.short_ar : product.short_en;
   const cat = (categories ?? []).find((c) => c.slug === product.category);
@@ -31,6 +34,41 @@ export function ProductCard({ product }: ProductCardProps) {
         ? cat.name_ar
         : cat.name_en
       : product.category;
+
+  const applyTilt = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    const cur = currentRef.current;
+    const tgt = targetRef.current;
+    const ease = 0.07;
+    cur.rx += (tgt.rx - cur.rx) * ease;
+    cur.ry += (tgt.ry - cur.ry) * ease;
+    cur.mx += (tgt.mx - cur.mx) * ease;
+    cur.my += (tgt.my - cur.my) * ease;
+    el.style.setProperty("--rx", `${cur.rx.toFixed(3)}deg`);
+    el.style.setProperty("--ry", `${cur.ry.toFixed(3)}deg`);
+    el.style.setProperty("--mx", `${cur.mx.toFixed(2)}%`);
+    el.style.setProperty("--my", `${cur.my.toFixed(2)}%`);
+
+    const stillMoving =
+      Math.abs(tgt.rx - cur.rx) > 0.02 ||
+      Math.abs(tgt.ry - cur.ry) > 0.02 ||
+      Math.abs(tgt.mx - cur.mx) > 0.15 ||
+      Math.abs(tgt.my - cur.my) > 0.15;
+    if (stillMoving) rafRef.current = requestAnimationFrame(applyTilt);
+    else rafRef.current = 0;
+  };
+
+  const startTilt = () => {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(applyTilt);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -54,21 +92,18 @@ export function ProductCard({ product }: ProductCardProps) {
     const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    const rotX = (0.5 - y) * 12;
-    const rotY = (x - 0.5) * 14;
-    el.style.setProperty("--rx", `${rotX}deg`);
-    el.style.setProperty("--ry", `${rotY}deg`);
-    el.style.setProperty("--mx", `${x * 100}%`);
-    el.style.setProperty("--my", `${y * 100}%`);
+    targetRef.current = {
+      rx: (0.5 - y) * 5.5,
+      ry: (x - 0.5) * 6.5,
+      mx: x * 100,
+      my: y * 100,
+    };
+    startTilt();
   };
 
   const onLeave = () => {
-    const el = cardRef.current;
-    if (!el) return;
-    el.style.setProperty("--rx", "0deg");
-    el.style.setProperty("--ry", "0deg");
-    el.style.setProperty("--mx", "50%");
-    el.style.setProperty("--my", "40%");
+    targetRef.current = { rx: 0, ry: 0, mx: 50, my: 40 };
+    startTilt();
   };
 
   return (
@@ -86,11 +121,104 @@ export function ProductCard({ product }: ProductCardProps) {
       }
       className={cn(
         "product-card-3d group relative isolate rounded-[1.75rem]",
-        "transition-[transform,box-shadow] duration-300 ease-out will-change-transform",
-        "[transform:perspective(1100px)_rotateX(var(--rx))_rotateY(var(--ry))_translateZ(0)]",
-        "hover:-translate-y-2 hover:z-10",
+        "will-change-transform",
+        "[transform:perspective(1200px)_rotateX(var(--rx))_rotateY(var(--ry))]",
       )}
     >
+      {/* Soft glow under card */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_85%,rgba(225,29,46,0.32),transparent_62%)] opacity-40 blur-2xl transition-opacity duration-700 group-hover:opacity-100"
+      />
+
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-[1.75rem] border border-white/12",
+          "bg-gradient-to-b from-[#1f1a17] via-[#14110f] to-[#090807]",
+          "shadow-[0_22px_50px_-22px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.08)]",
+          "transition-[transform,box-shadow,border-color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "group-hover:-translate-y-1",
+          "group-hover:border-primary/50",
+          "group-hover:shadow-[0_32px_70px_-18px_rgba(0,0,0,0.95),0_0_0_1px_rgba(225,29,46,0.28),0_0_56px_-14px_rgba(225,29,46,0.6)]",
+        )}
+      >
+        {/* Specular shine that follows cursor */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-20 rounded-[1.75rem] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(520px circle at var(--mx) var(--my), rgba(255,255,255,0.14), transparent 42%)",
+          }}
+        />
+
+        {/* Top rim highlight */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-4 top-0 z-20 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent"
+        />
+
+        <Link to="/product/$slug" params={{ slug: product.slug }} className="relative z-10 block">
+          <div className="relative aspect-[16/11] overflow-hidden rounded-t-[1.75rem]">
+            <ProductImage
+              category={product.category}
+              title={title}
+              imageUrl={product.image_url}
+              className="transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0908] via-[#0a0908]/35 to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(225,29,46,0.18),transparent_55%)] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+
+            <span className="absolute start-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[10px] font-medium tracking-[0.14em] text-white/90 uppercase backdrop-blur-md">
+              <Sparkles className="h-3 w-3 text-primary" />
+              {categoryLabel}
+            </span>
+
+            {product.is_featured && (
+              <span className="absolute end-3 top-3 rounded-full border border-primary/40 bg-primary/90 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] text-primary-foreground uppercase shadow-[0_0_20px_-6px_rgba(225,29,46,0.8)]">
+                HOT
+              </span>
+            )}
+          </div>
+
+          <div className="relative space-y-4 p-5">
+            <div>
+              <h3 className="font-display text-[1.05rem] font-semibold leading-snug tracking-wide text-foreground transition-colors duration-500 group-hover:text-primary">
+                {title}
+              </h3>
+              {short && (
+                <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+                  {short}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5 pe-2.5 ps-3.5 backdrop-blur-sm">
+              <span className="font-display text-xl font-semibold tracking-wide text-gold-gradient">
+                {money(product.price)}
+              </span>
+              <button
+                type="button"
+                onClick={handleAdd}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5",
+                  "text-xs font-semibold tracking-wide text-primary-foreground",
+                  "shadow-[0_8px_24px_-10px_rgba(225,29,46,0.85)]",
+                  "transition duration-500",
+                  "hover:bg-[#ff2a3d] hover:shadow-[0_12px_28px_-8px_rgba(225,29,46,0.95)]",
+                  "active:scale-[0.97]",
+                )}
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+                {t("add_to_cart")}
+              </button>
+            </div>
+          </div>
+        </Link>
+      </div>
+    </article>
+  );
+}
       {/* Soft glow under card */}
       <div
         aria-hidden
