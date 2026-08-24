@@ -1,14 +1,16 @@
 import {
-  apiCheckout,
-  apiGetAllOrders,
-  apiGetInterest,
-  apiGetUserDownloads,
-  apiGetUserOrders,
-} from "@/lib/api";
+  createOrder,
+  getAllOrders,
+  getInterest,
+  getUserDownloads,
+  getUserOrders,
+} from "@/lib/data";
 import type { CartItem } from "@/lib/store";
 
-export async function checkout(items: CartItem[], _userId: string) {
-  return apiCheckout(
+export async function checkout(items: CartItem[], userId: string) {
+  await delay();
+  return createOrder(
+    userId,
     items.map((i) => ({
       id: i.id,
       title_ar: i.title_ar,
@@ -18,18 +20,26 @@ export async function checkout(items: CartItem[], _userId: string) {
   );
 }
 
-export async function fetchUserOrders(_userId: string) {
-  return apiGetUserOrders();
+export async function fetchUserOrders(userId: string) {
+  await delay();
+  return getUserOrders(userId);
 }
 
-export async function fetchOrderDownloads(_userId: string) {
-  return apiGetUserDownloads();
+export async function fetchOrderDownloads(userId: string) {
+  await delay();
+  return getUserDownloads(userId);
 }
 
 export async function fetchAdminOrders() {
-  return apiGetAllOrders();
+  await delay();
+  return getAllOrders();
 }
 
 export async function fetchAdminInterest() {
-  return apiGetInterest();
+  await delay();
+  return getInterest();
+}
+
+function delay(ms = 80) {
+  return new Promise((r) => setTimeout(r, ms));
 }

@@ -46,8 +46,7 @@ import {
 import { useLang } from "@/lib/i18n";
 import { useAuth, money, type Product } from "@/lib/store";
 import { fetchAdminOrders, fetchAdminInterest } from "@/lib/checkout";
-import { apiGetProductFileMeta } from "@/lib/api";
-import type { Order } from "@/lib/data";
+import { getProductFileMeta, getUserById, type Order } from "@/lib/data";
 import {
   invalidateProducts,
   removeCategory,
@@ -354,33 +353,32 @@ function AdminPage() {
 
   const openEdit = (product: Product) => {
     setEditing(product);
-    void apiGetProductFileMeta(product.id).then((meta) => {
-      const hasRealFile = Boolean(meta?.file_url?.startsWith("http"));
-      setForm({
-        slug: product.slug,
-        title_ar: product.title_ar,
-        title_en: product.title_en,
-        short_ar: product.short_ar ?? "",
-        short_en: product.short_en ?? "",
-        description_ar: product.description_ar ?? "",
-        description_en: product.description_en ?? "",
-        category: product.category,
-        price: product.price,
-        images: product.images?.length
-          ? product.images
-          : product.image_url
-            ? [product.image_url]
-            : [],
-        file_name: hasRealFile ? (meta?.file_name ?? "") : "",
-        pending_file: null,
-        clear_file: false,
-        features_ar: product.features_ar.join("\n"),
-        features_en: product.features_en.join("\n"),
-        install_ar: (product.install_ar ?? []).join("\n"),
-        install_en: (product.install_en ?? []).join("\n"),
-        is_featured: product.is_featured,
-        is_active: product.is_active,
-      });
+    const meta = getProductFileMeta(product.id);
+    const hasRealFile = Boolean(meta?.file_url.startsWith("idb:"));
+    setForm({
+      slug: product.slug,
+      title_ar: product.title_ar,
+      title_en: product.title_en,
+      short_ar: product.short_ar ?? "",
+      short_en: product.short_en ?? "",
+      description_ar: product.description_ar ?? "",
+      description_en: product.description_en ?? "",
+      category: product.category,
+      price: product.price,
+      images: product.images?.length
+        ? product.images
+        : product.image_url
+          ? [product.image_url]
+          : [],
+      file_name: hasRealFile ? (meta?.file_name ?? "") : "",
+      pending_file: null,
+      clear_file: false,
+      features_ar: product.features_ar.join("\n"),
+      features_en: product.features_en.join("\n"),
+      install_ar: (product.install_ar ?? []).join("\n"),
+      install_en: (product.install_en ?? []).join("\n"),
+      is_featured: product.is_featured,
+      is_active: product.is_active,
     });
     setDialogOpen(true);
   };
@@ -641,7 +639,7 @@ function AdminPage() {
                         </TableRow>
                       ) : (
                         (orders ?? []).map((order) => {
-                          const customer = order.customer;
+                          const customer = getUserById(order.user_id);
                           return (
                             <TableRow
                               key={order.id}
@@ -654,7 +652,7 @@ function AdminPage() {
                               <TableCell>
                                 <div className="min-w-0">
                                   <p className="truncate text-sm font-medium">
-                                    {customer?.display_name || customer?.email || order.user_id.slice(0, 8)}
+                                    {customer?.displayName || customer?.email || order.user_id.slice(0, 8)}
                                   </p>
                                   {customer?.email && (
                                     <p className="truncate text-xs text-muted-foreground">
@@ -723,7 +721,7 @@ function AdminPage() {
                     </DialogHeader>
 
                     {(() => {
-                      const customer = selectedOrder.customer;
+                      const customer = getUserById(selectedOrder.user_id);
                       return (
                         <div className="space-y-5">
                           <div className="grid gap-3 border border-white/10 bg-[#0e0c0a] p-4 sm:grid-cols-2">
@@ -732,7 +730,7 @@ function AdminPage() {
                                 {t("customer")}
                               </p>
                               <p className="mt-1 font-medium">
-                                {customer?.display_name || "—"}
+                                {customer?.displayName || "—"}
                               </p>
                               <p className="mt-0.5 text-sm text-muted-foreground">
                                 {customer?.email || selectedOrder.user_id}

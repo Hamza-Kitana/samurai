@@ -31,12 +31,5 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
+*.sln
 *.sw?
-
-# Backend build / local DB
-backend/**/bin/
-backend/**/obj/
-backend/**/uploads/
-*.db
-*.db-shm
-*.db-wal

@@ -58,20 +58,9 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        var origins = (builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-            ?? ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080", "https://samurai-rho.vercel.app"])
-            .ToList();
-
-        var extra = builder.Configuration["Cors:ExtraOrigins"];
-        if (!string.IsNullOrWhiteSpace(extra))
-        {
-            origins.AddRange(extra.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-        }
-
-        policy.WithOrigins(origins.Distinct().ToArray())
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+            ?? ["http://localhost:3000", "http://localhost:5173", "https://samurai-rho.vercel.app"];
+        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 

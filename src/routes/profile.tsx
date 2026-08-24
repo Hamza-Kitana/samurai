@@ -16,8 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useLang } from "@/lib/i18n";
 import { useAuth, money } from "@/lib/store";
-import { downloadUrl, getToken } from "@/lib/api-client";
 import { fetchUserOrders, fetchOrderDownloads } from "@/lib/checkout";
+import { getProductBlob, triggerBrowserDownload } from "@/lib/product-files-db";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -291,9 +291,15 @@ function ProfilePage() {
                             className="w-full gap-2"
                             onClick={() => {
                               void (async () => {
+                                const stored = await getProductBlob(file.product_id);
+                                if (stored) {
+                                  triggerBrowserDownload(stored.blob, stored.fileName);
+                                  toast.success(`${stored.fileName} ✓`);
+                                  return;
+                                }
                                 if (
-                                  file.file_url.startsWith("http") &&
-                                  !file.file_url.includes("/api/downloads/")
+                                  file.file_url.startsWith("http") ||
+                                  file.file_url.startsWith("data:")
                                 ) {
                                   const a = document.createElement("a");
                                   a.href = file.file_url;
@@ -305,25 +311,7 @@ function ProfilePage() {
                                   toast.success(`${file.file_name} ✓`);
                                   return;
                                 }
-
-                                const token = getToken();
-                                const res = await fetch(downloadUrl(file.product_id), {
-                                  headers: token ? { Authorization: `Bearer ${token}` } : {},
-                                });
-                                if (!res.ok) {
-                                  toast.error(t("product_file_missing"));
-                                  return;
-                                }
-                                const blob = await res.blob();
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement("a");
-                                a.href = url;
-                                a.download = file.file_name;
-                                document.body.appendChild(a);
-                                a.click();
-                                a.remove();
-                                URL.revokeObjectURL(url);
-                                toast.success(`${file.file_name} ✓`);
+                                toast.error(t("product_file_missing"));
                               })();
                             }}
                           >
