@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 
 const YT_VIDEO_ID = "A4ahpJ7ZAaw";
+const START_VOLUME = 12;
 
 type YTPlayer = {
   playVideo: () => void;
@@ -78,7 +79,7 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [volume, setVolume] = useState(45);
+  const [volume, setVolume] = useState(START_VOLUME);
   const [needsGesture, setNeedsGesture] = useState(false);
 
   useEffect(() => {
@@ -110,12 +111,12 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
           onReady: (e) => {
             if (cancelled) return;
             playerRef.current = e.target;
-            e.target.setVolume(45);
+            e.target.setVolume(START_VOLUME);
             e.target.unMute();
             e.target.playVideo();
             setReady(true);
             setMuted(false);
-            setVolume(45);
+            setVolume(START_VOLUME);
 
             // Browsers often block unmuted autoplay — detect and offer a tap
             window.setTimeout(() => {
@@ -180,7 +181,7 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
     if (!p) return;
     if (muted) {
       p.unMute();
-      p.setVolume(volume || 45);
+      p.setVolume(volume || START_VOLUME);
       setMuted(false);
       setNeedsGesture(false);
     } else {
@@ -208,7 +209,7 @@ export function HeroVideoBackground({ className }: HeroVideoBackgroundProps) {
     const p = playerRef.current;
     if (!p) return;
     p.unMute();
-    p.setVolume(volume || 45);
+    p.setVolume(volume || START_VOLUME);
     p.playVideo();
     setMuted(false);
     setNeedsGesture(false);
