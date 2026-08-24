@@ -347,3 +347,12 @@
     box-shadow: var(--shadow-gold);
   }
 }
+
+.product-card-3d {
+  transform-style: preserve-3d;
+}
+
+.product-card-3d > div {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

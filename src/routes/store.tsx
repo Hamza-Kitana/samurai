@@ -89,9 +89,9 @@ function StorePage() {
                 type="button"
                 onClick={() => setCategory("all")}
                 className={cn(
-                  "shrink-0 border px-4 py-2 text-xs font-medium tracking-[0.12em] uppercase transition-colors",
+                  "shrink-0 rounded-full border px-4 py-2 text-xs font-medium tracking-[0.12em] uppercase transition-colors",
                   category === "all"
-                    ? "border-primary bg-primary text-primary-foreground"
+                    ? "border-primary bg-primary text-primary-foreground shadow-[0_0_24px_-8px_rgba(225,29,46,0.7)]"
                     : "border-white/12 text-muted-foreground hover:border-primary/40 hover:text-foreground",
                 )}
               >
@@ -103,9 +103,9 @@ function StorePage() {
                   type="button"
                   onClick={() => setCategory(cat.slug)}
                   className={cn(
-                    "shrink-0 border px-4 py-2 text-xs font-medium tracking-[0.12em] uppercase transition-colors",
+                    "shrink-0 rounded-full border px-4 py-2 text-xs font-medium tracking-[0.12em] uppercase transition-colors",
                     category === cat.slug
-                      ? "border-primary bg-primary text-primary-foreground"
+                      ? "border-primary bg-primary text-primary-foreground shadow-[0_0_24px_-8px_rgba(225,29,46,0.7)]"
                       : "border-white/12 text-muted-foreground hover:border-primary/40 hover:text-foreground",
                   )}
                 >
@@ -115,7 +115,7 @@ function StorePage() {
             </div>
 
             {!isLoading && (
-              <span className="absolute end-4 top-1/2 hidden -translate-y-1/2 border border-white/10 bg-white/5 px-3 py-2 text-[11px] tracking-[0.14em] text-muted-foreground uppercase sm:end-8 sm:inline-block lg:end-12 xl:end-16 2xl:end-20">
+              <span className="absolute end-4 top-1/2 hidden -translate-y-1/2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] tracking-[0.14em] text-muted-foreground uppercase sm:end-8 sm:inline-block lg:end-12 xl:end-16 2xl:end-20">
                 {(displayed ?? []).length} {t("products_count")}
               </span>
             )}
@@ -146,13 +146,13 @@ function StorePage() {
           </div>
 
           {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <div className="scene-3d grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {Array.from({ length: 10 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/5]" />
+                <Skeleton key={i} className="aspect-[4/5] rounded-[1.75rem]" />
               ))}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <div className="scene-3d grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {(displayed ?? []).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
