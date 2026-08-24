@@ -18,7 +18,13 @@ import {
   type LocalUser,
   type Product as DataProduct,
 } from "@/lib/data";
-import type { GoogleProfile } from "@/lib/google-auth";
+import {
+  parseGoogleCredential,
+  stashLoginNext,
+  takePendingGoogleCredential,
+  takeStashedLoginNext,
+  type GoogleProfile,
+} from "@/lib/google-auth";
 
 export type Product = DataProduct;
 
@@ -109,9 +115,11 @@ type AuthCtx = {
   loading: boolean;
   loginOpen: boolean;
   loginStaff: boolean;
+  googleReturnPending: boolean;
   openLogin: (opts?: { staff?: boolean; next?: string }) => void;
   closeLogin: () => void;
   consumeLoginNext: () => string | null;
+  clearGoogleReturn: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   loginWithGoogle: (profile: GoogleProfile) => Promise<void>;
@@ -125,9 +133,11 @@ const AuthContext = createContext<AuthCtx>({
   loading: true,
   loginOpen: false,
   loginStaff: false,
+  googleReturnPending: false,
   openLogin: () => {},
   closeLogin: () => {},
   consumeLoginNext: () => null,
+  clearGoogleReturn: () => {},
   login: async () => {},
   register: async () => {},
   loginWithGoogle: async () => {},
@@ -151,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginStaff, setLoginStaff] = useState(false);
+  const [googleReturnPending, setGoogleReturnPending] = useState(false);
   const loginNextRef = useRef<string | null>(null);
 
   const refresh = useCallback(() => {
@@ -177,6 +188,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
+  // Complete Google redirect sign-in after returning from Google / callback bridge.
+  useEffect(() => {
+    const credential = takePendingGoogleCredential();
+    if (!credential) return;
+    try {
+      const profile = parseGoogleCredential(credential);
+      const u = localSignInWithGoogle(profile);
+      setUser(toAuthUser(u));
+      setIsAdmin(u.role === "admin");
+      setLoginOpen(false);
+      setLoginStaff(false);
+      const stashed = takeStashedLoginNext();
+      if (stashed) loginNextRef.current = stashed;
+      setGoogleReturnPending(true);
+    } catch (err) {
+      console.warn("Google redirect sign-in failed", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const value = useMemo<AuthCtx>(
     () => ({
       user,
@@ -184,8 +216,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       loginOpen,
       loginStaff,
+      googleReturnPending,
       openLogin: (opts) => {
         loginNextRef.current = opts?.next ?? null;
+        stashLoginNext(opts?.next);
         setLoginStaff(Boolean(opts?.staff));
         setLoginOpen(true);
       },
@@ -194,10 +228,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoginStaff(false);
       },
       consumeLoginNext: () => {
-        const next = loginNextRef.current;
+        const next = loginNextRef.current ?? takeStashedLoginNext();
         loginNextRef.current = null;
         return next;
       },
+      clearGoogleReturn: () => setGoogleReturnPending(false),
       login: async (email, password) => {
         const u = localSignIn(email, password);
         setUser(toAuthUser(u));
@@ -225,7 +260,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       refresh,
     }),
-    [user, isAdmin, loading, loginOpen, loginStaff, refresh],
+    [user, isAdmin, loading, loginOpen, loginStaff, googleReturnPending, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

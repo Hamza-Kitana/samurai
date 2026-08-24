@@ -133,13 +133,11 @@ export function LoginDialog() {
             <DialogDescription className="mt-3 text-center text-sm text-white/50">
               {t("google_login")}
             </DialogDescription>
+            <p className="mt-2 text-center text-[11px] text-white/35">{t("google_redirect_hint")}</p>
 
             <div className="mt-9">
               {loginOpen && (
-                <GoogleSignInButton
-                  onSuccess={afterLogin}
-                  onError={(message) => setError(message)}
-                />
+                <GoogleSignInButton onError={(message) => setError(message)} />
               )}
             </div>
 

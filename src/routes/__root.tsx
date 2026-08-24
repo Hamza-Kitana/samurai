@@ -15,6 +15,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider, CartProvider } from "@/lib/store";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { LoginDialog } from "@/components/auth/LoginDialog";
+import { GoogleAuthReturnNav } from "@/components/auth/GoogleAuthReturnNav";
 import { AppSplash } from "@/components/LoadingScreen";
 
 function NotFoundComponent() {
@@ -139,6 +140,7 @@ function RootComponent() {
             <Outlet />
             <CartDrawer />
             <LoginDialog />
+            <GoogleAuthReturnNav />
             <Toaster richColors position="top-center" />
           </CartProvider>
         </AuthProvider>

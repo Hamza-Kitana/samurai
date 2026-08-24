@@ -12,10 +12,11 @@ type GoogleCredentialResponse = {
 type GoogleAccountsId = {
   initialize: (config: {
     client_id: string;
-    callback: (response: GoogleCredentialResponse) => void;
+    callback?: (response: GoogleCredentialResponse) => void;
     auto_select?: boolean;
     cancel_on_tap_outside?: boolean;
     ux_mode?: "popup" | "redirect";
+    login_uri?: string;
     use_fedcm_for_button?: boolean;
     use_fedcm_for_prompt?: boolean;
   }) => void;
@@ -39,8 +40,16 @@ declare global {
   }
 }
 
+export const GOOGLE_CREDENTIAL_KEY = "kataro_google_credential";
+export const LOGIN_NEXT_KEY = "kataro_login_next";
+
 export function getGoogleClientId() {
   return import.meta.env["VITE_GOOGLE_CLIENT_ID"] as string | undefined;
+}
+
+export function getGoogleLoginUri() {
+  if (typeof window === "undefined") return "";
+  return `${window.location.origin}/api/auth/google/callback`;
 }
 
 export function parseGoogleCredential(credential: string): GoogleProfile {
@@ -60,6 +69,38 @@ export function parseGoogleCredential(credential: string): GoogleProfile {
   };
   if (json.picture) profile.avatar = json.picture;
   return profile;
+}
+
+export function takePendingGoogleCredential(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const credential = sessionStorage.getItem(GOOGLE_CREDENTIAL_KEY);
+    if (credential) sessionStorage.removeItem(GOOGLE_CREDENTIAL_KEY);
+    return credential;
+  } catch {
+    return null;
+  }
+}
+
+export function stashLoginNext(next: string | null | undefined) {
+  if (typeof window === "undefined") return;
+  try {
+    if (next) sessionStorage.setItem(LOGIN_NEXT_KEY, next);
+    else sessionStorage.removeItem(LOGIN_NEXT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function takeStashedLoginNext(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const next = sessionStorage.getItem(LOGIN_NEXT_KEY);
+    if (next) sessionStorage.removeItem(LOGIN_NEXT_KEY);
+    return next;
+  } catch {
+    return null;
+  }
 }
 
 let scriptPromise: Promise<void> | null = null;

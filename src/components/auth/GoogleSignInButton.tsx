@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { getGoogleClientId, loadGoogleScript, parseGoogleCredential } from "@/lib/google-auth";
-import { useAuth } from "@/lib/store";
+import {
+  getGoogleClientId,
+  getGoogleLoginUri,
+  loadGoogleScript,
+} from "@/lib/google-auth";
 import { useLang } from "@/lib/i18n";
 
 type GoogleSignInButtonProps = {
-  onSuccess?: () => void;
   onError?: (message: string) => void;
 };
 
-export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onError }: GoogleSignInButtonProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { loginWithGoogle } = useAuth();
   const { lang, t } = useLang();
   const [missingId, setMissingId] = useState(false);
 
@@ -28,18 +29,11 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
       .then(() => {
         if (cancelled || !buttonRef.current || !window.google?.accounts?.id) return;
 
-        // Classic popup account chooser (same UX as most stores), not FedCM overlay
+        // Full-page redirect avoids browser popup blockers (common in Edge).
         window.google.accounts.id.initialize({
           client_id: clientId,
-          ux_mode: "popup",
-          callback: (response) => {
-            try {
-              const profile = parseGoogleCredential(response.credential);
-              void loginWithGoogle(profile).then(() => onSuccess?.());
-            } catch (err) {
-              onError?.(err instanceof Error ? err.message : "Google sign-in failed");
-            }
-          },
+          ux_mode: "redirect",
+          login_uri: getGoogleLoginUri(),
           cancel_on_tap_outside: true,
           use_fedcm_for_button: false,
         });
@@ -66,7 +60,7 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
     return () => {
       cancelled = true;
     };
-  }, [lang, loginWithGoogle, onError, onSuccess, t]);
+  }, [lang, onError, t]);
 
   if (missingId) {
     return (
